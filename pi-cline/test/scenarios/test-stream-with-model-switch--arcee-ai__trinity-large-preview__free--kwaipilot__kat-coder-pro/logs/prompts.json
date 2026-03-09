@@ -1,0 +1,17 @@
+[
+  {
+    "turn": 1,
+    "model": "cline/arcee-ai/trinity-large-preview:free",
+    "prompt": "[switch/1]\nUse attempt_completion tool.\nSet result to exactly this text and nothing else:\nSWITCH-TURN1-OK"
+  },
+  {
+    "turn": 2,
+    "model": "cline/kwaipilot/kat-coder-pro",
+    "prompt": "[switch/2]\nModel switched. Keep same taskId.\nUse attempt_completion tool.\nSet result to exactly this text and nothing else:\nSWITCH-TURN2-OK"
+  },
+  {
+    "turn": 3,
+    "model": "cline/arcee-ai/trinity-large-preview:free",
+    "prompt": "[switch/3]\nModel switched back.\nUse attempt_completion tool.\nSet result to exactly this text and nothing else:\nSWITCH-TURN3-OK"
+  }
+]

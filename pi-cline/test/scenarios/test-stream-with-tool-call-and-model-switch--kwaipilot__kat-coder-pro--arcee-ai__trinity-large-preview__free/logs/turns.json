@@ -1,0 +1,23 @@
+[
+  {
+    "turn": 1,
+    "model": "cline/kwaipilot/kat-coder-pro",
+    "taskId": "0000000000000",
+    "durationMs": 18801,
+    "recordedCalls": 3
+  },
+  {
+    "turn": 2,
+    "model": "cline/arcee-ai/trinity-large-preview:free",
+    "taskId": "0000000000000",
+    "durationMs": 49722,
+    "recordedCalls": 3
+  },
+  {
+    "turn": 3,
+    "model": "cline/kwaipilot/kat-coder-pro",
+    "taskId": "0000000000000",
+    "durationMs": 11532,
+    "recordedCalls": 2
+  }
+]

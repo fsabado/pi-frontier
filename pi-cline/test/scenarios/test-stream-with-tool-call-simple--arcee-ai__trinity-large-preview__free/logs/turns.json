@@ -1,0 +1,16 @@
+[
+  {
+    "turn": 1,
+    "model": "cline/arcee-ai/trinity-large-preview:free",
+    "taskId": "0000000000000",
+    "durationMs": 101400,
+    "recordedCalls": 4
+  },
+  {
+    "turn": 2,
+    "model": "cline/arcee-ai/trinity-large-preview:free",
+    "taskId": "0000000000000",
+    "durationMs": 84270,
+    "recordedCalls": 3
+  }
+]

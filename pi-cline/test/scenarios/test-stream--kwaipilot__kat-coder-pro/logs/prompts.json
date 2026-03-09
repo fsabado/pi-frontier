@@ -1,0 +1,17 @@
+[
+  {
+    "turn": 1,
+    "model": "cline/kwaipilot/kat-coder-pro",
+    "prompt": "[stream/1]\nUse attempt_completion tool.\nSet result to exactly this text and nothing else:\nSTREAM-ACK-1"
+  },
+  {
+    "turn": 2,
+    "model": "cline/kwaipilot/kat-coder-pro",
+    "prompt": "[stream/2]\nContinue the same task context.\nUse attempt_completion tool.\nSet result to exactly this text and nothing else:\nSTREAM-ACK-2"
+  },
+  {
+    "turn": 3,
+    "model": "cline/kwaipilot/kat-coder-pro",
+    "prompt": "[stream/3]\nContinue the same task context.\nUse attempt_completion tool.\nSet result to exactly this JSON and nothing else:\n{\"status\":\"ok\",\"case\":\"test-stream\"}"
+  }
+]

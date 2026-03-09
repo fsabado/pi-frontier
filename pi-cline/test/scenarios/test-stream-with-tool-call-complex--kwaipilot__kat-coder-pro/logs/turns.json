@@ -1,0 +1,16 @@
+[
+  {
+    "turn": 1,
+    "model": "cline/kwaipilot/kat-coder-pro",
+    "taskId": "0000000000000",
+    "durationMs": 16205,
+    "recordedCalls": 3
+  },
+  {
+    "turn": 2,
+    "model": "cline/kwaipilot/kat-coder-pro",
+    "taskId": "0000000000000",
+    "durationMs": 21941,
+    "recordedCalls": 3
+  }
+]

@@ -1,0 +1,12 @@
+[
+  {
+    "turn": 1,
+    "model": "cline/kwaipilot/kat-coder-pro",
+    "prompt": "[tool-complex/1]\nRun: set -euo pipefail; mkdir -p .tmp/cx; echo hello > .tmp/cx/a.txt; echo world >> .tmp/cx/a.txt; wc -l .tmp/cx/a.txt > .tmp/cx/stats.txt\nRead .tmp/cx/stats.txt, summarize in one line. End with COMPLEX-TOOL-OK."
+  },
+  {
+    "turn": 2,
+    "model": "cline/kwaipilot/kat-coder-pro",
+    "prompt": "[tool-complex/2]\nCreate .tmp/cx/report.md with title + bullet list.\nRead it and end with COMPLEX-TOOL-TURN2-OK."
+  }
+]

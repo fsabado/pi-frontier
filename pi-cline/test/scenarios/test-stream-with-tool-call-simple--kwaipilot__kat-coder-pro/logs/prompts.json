@@ -1,0 +1,12 @@
+[
+  {
+    "turn": 1,
+    "model": "cline/kwaipilot/kat-coder-pro",
+    "prompt": "[tool-simple/1]\nUse tools:\n1) Create ./tmp/note.txt: line1=hello, line2=world\n2) Read the file back\n3) Run: shasum -a 256 ./tmp/note.txt\nEnd with token SIMPLE-TOOL-OK."
+  },
+  {
+    "turn": 2,
+    "model": "cline/kwaipilot/kat-coder-pro",
+    "prompt": "[tool-simple/2]\nAppend line3=done to ./tmp/note.txt, read it, end with SIMPLE-TOOL-TURN2-OK."
+  }
+]

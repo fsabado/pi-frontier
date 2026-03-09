@@ -1,0 +1,17 @@
+[
+  {
+    "turn": 1,
+    "model": "cline/arcee-ai/trinity-large-preview:free",
+    "prompt": "[tool-switch/1]\nCreate .tmp/cross.txt with: CROSS-1. Read it, end with CROSS-TURN1-OK."
+  },
+  {
+    "turn": 2,
+    "model": "cline/kwaipilot/kat-coder-pro",
+    "prompt": "[tool-switch/2]\nAppend CROSS-2 to .tmp/cross.txt. cat -n .tmp/cross.txt. End with CROSS-TURN2-OK."
+  },
+  {
+    "turn": 3,
+    "model": "cline/arcee-ai/trinity-large-preview:free",
+    "prompt": "[tool-switch/3]\nRead .tmp/cross.txt, one-line summary. End with CROSS-TURN3-OK."
+  }
+]
