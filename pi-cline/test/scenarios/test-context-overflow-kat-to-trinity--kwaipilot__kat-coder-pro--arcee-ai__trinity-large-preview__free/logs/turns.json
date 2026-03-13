@@ -3,35 +3,35 @@
     "turn": 1,
     "model": "cline/kwaipilot/kat-coder-pro",
     "taskId": "0000000000000",
-    "durationMs": 4744,
+    "durationMs": 9698,
     "recordedCalls": 1
   },
   {
     "turn": 2,
     "model": "cline/kwaipilot/kat-coder-pro",
     "taskId": "0000000000000",
-    "durationMs": 5533,
+    "durationMs": 18209,
     "recordedCalls": 1
   },
   {
     "turn": 3,
     "model": "cline/kwaipilot/kat-coder-pro",
     "taskId": "0000000000000",
-    "durationMs": 5215,
+    "durationMs": 7143,
     "recordedCalls": 1
   },
   {
     "turn": 4,
     "model": "cline/kwaipilot/kat-coder-pro",
     "taskId": "0000000000000",
-    "durationMs": 6007,
+    "durationMs": 6670,
     "recordedCalls": 1
   },
   {
     "turn": 5,
     "model": "cline/arcee-ai/trinity-large-preview:free",
     "taskId": "0000000000000",
-    "durationMs": 10026,
+    "durationMs": 5099,
     "recordedCalls": 1
   }
 ]

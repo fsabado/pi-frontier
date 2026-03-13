@@ -22,11 +22,7 @@
             },
             {
               "type": "text",
-              "text": "\n# task_progress RECOMMENDED\n\nWhen starting a new task, it is recommended to include a todo list using the task_progress parameter.\n\n\n1. Include a todo list using the task_progress parameter in your next tool call\n2. Create a comprehensive checklist of all steps needed\n3. Use markdown format: - [ ] for incomplete, - [x] for complete\n\n**Benefits of creating a todo/task_progress list now:**\n\t- Clear roadmap for implementation\n\t- Progress tracking throughout the task\n\t- Nothing gets forgotten or missed\n\t- Users can see, monitor, and edit the plan\n\n**Example structure:**```\n- [ ] Analyze requirements\n- [ ] Set up necessary files\n- [ ] Implement main functionality\n- [ ] Handle edge cases\n- [ ] Test the implementation\n- [ ] Verify results```\n\nKeeping the task_progress list updated helps track progress and ensures nothing is missed.\n"
-            },
-            {
-              "type": "text",
-              "text": "<environment_details>\n# Cline CLI - Node.js Visible Files\n(No visible files)\n\n# Cline CLI - Node.js Open Tabs\n(No open tabs)\n\n# Current Time\n1/1/1970, 12:00:00 AM (UTC, UTC+0:00)\n\n\n# Current Working Directory (/workspace) Files\nREADME.md\n\n# Workspace Configuration\n{\n  \"workspaces\": {\n    \"/workspace\": {\n      \"hint\": \"workspace\",\n      \"associatedRemoteUrls\": [\n        \"origin: https://github.com/test/test.git\"\n      ],\n      \"latestGitCommitHash\": \"0000000000000000000000000000000000000000\"\n    }\n  }\n}\n\n# Detected CLI Tools\nThese are some of the tools on the user's machine, and may be useful if needed to accomplish the task: gh, git, docker, kubectl, aws, gcloud, npm, curl, jq, make, node, sqlite3, grep, sed, awk, bundle. This list is not exhaustive, and other tools may be available.\n\n# Context Window Usage\n0 / 256K tokens used (0%)\n\n# Current Mode\nACT MODE\n</environment_details>"
+              "text": "<environment_details>\n# Cline CLI - Node.js Visible Files\n(No visible files)\n\n# Cline CLI - Node.js Open Tabs\n(No open tabs)\n\n# Current Time\n1/1/1970, 12:00:00 AM (UTC, UTC+0:00)\n\n# Current Working Directory (/workspace) Files\nREADME.md\n\n# Workspace Configuration\n{\n  \"workspaces\": {\n    \"/workspace\": {\n      \"hint\": \"workspace\",\n      \"associatedRemoteUrls\": [\n        \"origin: https://github.com/test/test.git\"\n      ],\n      \"latestGitCommitHash\": \"0000000000000000000000000000000000000000\"\n    }\n  }\n}\n\n# Detected CLI Tools\nThese are some of the tools on the user's machine, and may be useful if needed to accomplish the task: gh, git, docker, kubectl, aws, gcloud, npm, curl, jq, make, node, sqlite3, grep, sed, awk, bundle. This list is not exhaustive, and other tools may be available.\n\n# Context Window Usage\n0 / 200K tokens used (0%)\n\n# Current Mode\nACT MODE\n</environment_details>\n\nLoading..."
             }
           ]
         }
@@ -44,474 +40,54 @@
     },
     "body": [
       {
-        "id": "gen_01KK3M6SNK08G63GADKT8KEA90",
+        "id": "synthetic-1773285906664",
         "object": "chat.completion.chunk",
-        "created": 1772869610,
-        "model": "kwaipilot/kat-coder-pro-v1",
+        "created": 1773285906,
+        "model": "kwaipilot/kat-coder-pro",
         "choices": [
           {
             "index": 0,
             "delta": {
               "role": "assistant"
             },
-            "logprobs": null,
             "finish_reason": null
           }
-        ],
-        "system_fingerprint": "fp_l7f57coopu"
+        ]
       },
       {
-        "id": "gen_01KK3M6SNK08G63GADKT8KEA90",
+        "id": "synthetic-1773285906664",
         "object": "chat.completion.chunk",
-        "created": 1772869610,
-        "model": "kwaipilot/kat-coder-pro-v1",
+        "created": 1773285906,
+        "model": "kwaipilot/kat-coder-pro",
         "choices": [
           {
             "index": 0,
             "delta": {
-              "content": "<"
+              "content": "<attempt_completion>\n<result>SWITCH-TURN1-OK</result>\n</attempt_completion>"
             },
-            "logprobs": null,
             "finish_reason": null
           }
-        ],
-        "system_fingerprint": "fp_l7f57coopu"
+        ]
       },
       {
-        "id": "gen_01KK3M6SNK08G63GADKT8KEA90",
+        "id": "synthetic-1773285906664",
         "object": "chat.completion.chunk",
-        "created": 1772869610,
-        "model": "kwaipilot/kat-coder-pro-v1",
+        "created": 1773285906,
+        "model": "kwaipilot/kat-coder-pro",
         "choices": [
           {
             "index": 0,
-            "delta": {
-              "content": "attempt"
-            },
-            "logprobs": null,
-            "finish_reason": null
-          }
-        ],
-        "system_fingerprint": "fp_l7f57coopu"
-      },
-      {
-        "id": "gen_01KK3M6SNK08G63GADKT8KEA90",
-        "object": "chat.completion.chunk",
-        "created": 1772869610,
-        "model": "kwaipilot/kat-coder-pro-v1",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": "_completion"
-            },
-            "logprobs": null,
-            "finish_reason": null
-          }
-        ],
-        "system_fingerprint": "fp_l7f57coopu"
-      },
-      {
-        "id": "gen_01KK3M6SNK08G63GADKT8KEA90",
-        "object": "chat.completion.chunk",
-        "created": 1772869610,
-        "model": "kwaipilot/kat-coder-pro-v1",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": ">\n"
-            },
-            "logprobs": null,
-            "finish_reason": null
-          }
-        ],
-        "system_fingerprint": "fp_l7f57coopu"
-      },
-      {
-        "id": "gen_01KK3M6SNK08G63GADKT8KEA90",
-        "object": "chat.completion.chunk",
-        "created": 1772869610,
-        "model": "kwaipilot/kat-coder-pro-v1",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": "<"
-            },
-            "logprobs": null,
-            "finish_reason": null
-          }
-        ],
-        "system_fingerprint": "fp_l7f57coopu"
-      },
-      {
-        "id": "gen_01KK3M6SNK08G63GADKT8KEA90",
-        "object": "chat.completion.chunk",
-        "created": 1772869610,
-        "model": "kwaipilot/kat-coder-pro-v1",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": "result"
-            },
-            "logprobs": null,
-            "finish_reason": null
-          }
-        ],
-        "system_fingerprint": "fp_l7f57coopu"
-      },
-      {
-        "id": "gen_01KK3M6SNK08G63GADKT8KEA90",
-        "object": "chat.completion.chunk",
-        "created": 1772869610,
-        "model": "kwaipilot/kat-coder-pro-v1",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": ">"
-            },
-            "logprobs": null,
-            "finish_reason": null
-          }
-        ],
-        "system_fingerprint": "fp_l7f57coopu"
-      },
-      {
-        "id": "gen_01KK3M6SNK08G63GADKT8KEA90",
-        "object": "chat.completion.chunk",
-        "created": 1772869610,
-        "model": "kwaipilot/kat-coder-pro-v1",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": "SW"
-            },
-            "logprobs": null,
-            "finish_reason": null
-          }
-        ],
-        "system_fingerprint": "fp_l7f57coopu"
-      },
-      {
-        "id": "gen_01KK3M6SNK08G63GADKT8KEA90",
-        "object": "chat.completion.chunk",
-        "created": 1772869610,
-        "model": "kwaipilot/kat-coder-pro-v1",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": "ITCH"
-            },
-            "logprobs": null,
-            "finish_reason": null
-          }
-        ],
-        "system_fingerprint": "fp_l7f57coopu"
-      },
-      {
-        "id": "gen_01KK3M6SNK08G63GADKT8KEA90",
-        "object": "chat.completion.chunk",
-        "created": 1772869610,
-        "model": "kwaipilot/kat-coder-pro-v1",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": "-T"
-            },
-            "logprobs": null,
-            "finish_reason": null
-          }
-        ],
-        "system_fingerprint": "fp_l7f57coopu"
-      },
-      {
-        "id": "gen_01KK3M6SNK08G63GADKT8KEA90",
-        "object": "chat.completion.chunk",
-        "created": 1772869610,
-        "model": "kwaipilot/kat-coder-pro-v1",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": "URN"
-            },
-            "logprobs": null,
-            "finish_reason": null
-          }
-        ],
-        "system_fingerprint": "fp_l7f57coopu"
-      },
-      {
-        "id": "gen_01KK3M6SNK08G63GADKT8KEA90",
-        "object": "chat.completion.chunk",
-        "created": 1772869610,
-        "model": "kwaipilot/kat-coder-pro-v1",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": "1"
-            },
-            "logprobs": null,
-            "finish_reason": null
-          }
-        ],
-        "system_fingerprint": "fp_l7f57coopu"
-      },
-      {
-        "id": "gen_01KK3M6SNK08G63GADKT8KEA90",
-        "object": "chat.completion.chunk",
-        "created": 1772869610,
-        "model": "kwaipilot/kat-coder-pro-v1",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": "-"
-            },
-            "logprobs": null,
-            "finish_reason": null
-          }
-        ],
-        "system_fingerprint": "fp_l7f57coopu"
-      },
-      {
-        "id": "gen_01KK3M6SNK08G63GADKT8KEA90",
-        "object": "chat.completion.chunk",
-        "created": 1772869610,
-        "model": "kwaipilot/kat-coder-pro-v1",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": "OK"
-            },
-            "logprobs": null,
-            "finish_reason": null
-          }
-        ],
-        "system_fingerprint": "fp_l7f57coopu"
-      },
-      {
-        "id": "gen_01KK3M6SNK08G63GADKT8KEA90",
-        "object": "chat.completion.chunk",
-        "created": 1772869610,
-        "model": "kwaipilot/kat-coder-pro-v1",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": "</"
-            },
-            "logprobs": null,
-            "finish_reason": null
-          }
-        ],
-        "system_fingerprint": "fp_l7f57coopu"
-      },
-      {
-        "id": "gen_01KK3M6SNK08G63GADKT8KEA90",
-        "object": "chat.completion.chunk",
-        "created": 1772869610,
-        "model": "kwaipilot/kat-coder-pro-v1",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": "result"
-            },
-            "logprobs": null,
-            "finish_reason": null
-          }
-        ],
-        "system_fingerprint": "fp_l7f57coopu"
-      },
-      {
-        "id": "gen_01KK3M6SNK08G63GADKT8KEA90",
-        "object": "chat.completion.chunk",
-        "created": 1772869610,
-        "model": "kwaipilot/kat-coder-pro-v1",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": ">\n"
-            },
-            "logprobs": null,
-            "finish_reason": null
-          }
-        ],
-        "system_fingerprint": "fp_l7f57coopu"
-      },
-      {
-        "id": "gen_01KK3M6SNK08G63GADKT8KEA90",
-        "object": "chat.completion.chunk",
-        "created": 1772869610,
-        "model": "kwaipilot/kat-coder-pro-v1",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": "</"
-            },
-            "logprobs": null,
-            "finish_reason": null
-          }
-        ],
-        "system_fingerprint": "fp_l7f57coopu"
-      },
-      {
-        "id": "gen_01KK3M6SNK08G63GADKT8KEA90",
-        "object": "chat.completion.chunk",
-        "created": 1772869610,
-        "model": "kwaipilot/kat-coder-pro-v1",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": "attempt"
-            },
-            "logprobs": null,
-            "finish_reason": null
-          }
-        ],
-        "system_fingerprint": "fp_l7f57coopu"
-      },
-      {
-        "id": "gen_01KK3M6SNK08G63GADKT8KEA90",
-        "object": "chat.completion.chunk",
-        "created": 1772869610,
-        "model": "kwaipilot/kat-coder-pro-v1",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": "_completion"
-            },
-            "logprobs": null,
-            "finish_reason": null
-          }
-        ],
-        "system_fingerprint": "fp_l7f57coopu"
-      },
-      {
-        "id": "gen_01KK3M6SNK08G63GADKT8KEA90",
-        "object": "chat.completion.chunk",
-        "created": 1772869610,
-        "model": "kwaipilot/kat-coder-pro-v1",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": ">"
-            },
-            "logprobs": null,
-            "finish_reason": null
-          }
-        ],
-        "system_fingerprint": "fp_l7f57coopu"
-      },
-      {
-        "id": "gen_01KK3M6SNK08G63GADKT8KEA90",
-        "object": "chat.completion.chunk",
-        "created": 1772869610,
-        "model": "kwaipilot/kat-coder-pro-v1",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "provider_metadata": {
-                "streamlake": {},
-                "gateway": {
-                  "routing": {
-                    "originalModelId": "kwaipilot/kat-coder-pro-v1",
-                    "resolvedProvider": "novita",
-                    "resolvedProviderApiModelId": "kat-coder",
-                    "internalResolvedModelId": "novita:kat-coder",
-                    "fallbacksAvailable": [
-                      "streamlake"
-                    ],
-                    "internalReasoning": "Selected novita as preferred provider for kat-coder-pro-v1. 1 fallback(s) available: streamlake",
-                    "planningReasoning": "BYOK credentials available for: streamlake. BYOK execution order prioritizes streamlake over routing preference novita. System credentials planned for: novita, streamlake. Total execution order: streamlake(BYOK) → novita(system) → streamlake(system)",
-                    "canonicalSlug": "kwaipilot/kat-coder-pro-v1",
-                    "finalProvider": "streamlake",
-                    "attempts": [
-                      {
-                        "provider": "streamlake",
-                        "internalModelId": "streamlake:kat-coder-pro-v1",
-                        "providerApiModelId": "kat-coder-pro-v1",
-                        "credentialType": "byok",
-                        "success": true,
-                        "startTime": 1784101.369056,
-                        "endTime": 1785671.528416,
-                        "statusCode": 200
-                      }
-                    ],
-                    "modelAttemptCount": 1,
-                    "modelAttempts": [
-                      {
-                        "modelId": "novita:kat-coder",
-                        "canonicalSlug": "kwaipilot/kat-coder-pro-v1",
-                        "success": true,
-                        "providerAttemptCount": 1,
-                        "providerAttempts": [
-                          {
-                            "provider": "streamlake",
-                            "internalModelId": "streamlake:kat-coder-pro-v1",
-                            "providerApiModelId": "kat-coder-pro-v1",
-                            "credentialType": "byok",
-                            "success": true,
-                            "startTime": 1784101.369056,
-                            "endTime": 1785671.528416,
-                            "statusCode": 200
-                          }
-                        ]
-                      }
-                    ],
-                    "totalProviderAttemptCount": 1
-                  },
-                  "cost": "0",
-                  "marketCost": "0.00325302",
-                  "generationId": "gen_01KK3M6SNK08G63GADKT8KEA90",
-                  "billableWebSearchCalls": 0
-                }
-              }
-            },
-            "logprobs": null,
+            "delta": {},
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 10685,
-          "completion_tokens": 22,
-          "total_tokens": 10707,
-          "cost": 0,
-          "is_byok": true,
+          "prompt_tokens": 100,
+          "completion_tokens": 20,
           "prompt_tokens_details": {
-            "cached_tokens": 352,
-            "audio_tokens": 0,
-            "video_tokens": 0
-          },
-          "cost_details": {
-            "upstream_inference_cost": 0.00325302,
-            "upstream_inference_prompt_cost": 0,
-            "upstream_inference_completions_cost": 0
-          },
-          "completion_tokens_details": {
-            "reasoning_tokens": 0,
-            "image_tokens": 0
-          },
-          "cache_creation_input_tokens": 0,
-          "market_cost": 0.00325302
-        },
-        "system_fingerprint": "fp_l7f57coopu",
-        "generationId": "gen_01KK3M6SNK08G63GADKT8KEA90"
+            "cached_tokens": 0
+          }
+        }
       }
     ]
   }

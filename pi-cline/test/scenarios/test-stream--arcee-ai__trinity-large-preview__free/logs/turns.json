@@ -3,21 +3,21 @@
     "turn": 1,
     "model": "cline/arcee-ai/trinity-large-preview:free",
     "taskId": "0000000000000",
-    "durationMs": 13678,
+    "durationMs": 7328,
     "recordedCalls": 1
   },
   {
     "turn": 2,
     "model": "cline/arcee-ai/trinity-large-preview:free",
     "taskId": "0000000000000",
-    "durationMs": 8464,
+    "durationMs": 7982,
     "recordedCalls": 1
   },
   {
     "turn": 3,
     "model": "cline/arcee-ai/trinity-large-preview:free",
     "taskId": "0000000000000",
-    "durationMs": 11243,
+    "durationMs": 15776,
     "recordedCalls": 1
   }
 ]

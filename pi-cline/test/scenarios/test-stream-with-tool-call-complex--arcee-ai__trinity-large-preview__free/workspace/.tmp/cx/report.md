@@ -1,5 +1,6 @@
-# Report Summary
+# File Analysis Report
 
-- Created .tmp/cx/a.txt with 2 lines
-- Generated stats.txt showing line count
-- This is a bullet list in the report
+- File: .tmp/cx/a.txt
+- Line count: 2
+- Content: hello world
+- Status: Successfully created and analyzed

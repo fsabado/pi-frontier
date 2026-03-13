@@ -18,21 +18,21 @@
           "content": [
             {
               "type": "text",
-              "text": "<task>\n[overflow/1] Chunk 1/4. Store this block in task context for later turns. Do not quote or repeat the block. Only use attempt_completion. [BLOCK-START] blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij blk1-0 abcdefghij bl [BLOCK-END] Use attempt_completion tool immediately. Set result to exactly this text and nothing else: OVF-ACK-1\n</task>"
+              "text": "[TASK RESUMPTION] This task was interrupted just now. It may or may not be complete, so please reassess the task context. Be aware that the project state may have changed since then. The current working directory is now '/workspace'. If the task has not been completed, retry the last step before interruption and proceed with completing the task.\n\nNote: If you previously attempted a tool use that the user did not provide a result for, you should assume the tool use was not successful and assess whether you should retry. If the last tool was a browser_action, the browser has been closed and you must launch a new browser if needed.\n\nIMPORTANT: If the last tool use was a replace_in_file or write_to_file that was interrupted, the file was reverted back to its original state before the interrupted edit, and you do NOT need to re-read the file as you already have its up-to-date contents."
             },
             {
               "type": "text",
-              "text": "\n# task_progress RECOMMENDED\n\nWhen starting a new task, it is recommended to include a todo list using the task_progress parameter.\n\n\n1. Include a todo list using the task_progress parameter in your next tool call\n2. Create a comprehensive checklist of all steps needed\n3. Use markdown format: - [ ] for incomplete, - [x] for complete\n\n**Benefits of creating a todo/task_progress list now:**\n\t- Clear roadmap for implementation\n\t- Progress tracking throughout the task\n\t- Nothing gets forgotten or missed\n\t- Users can see, monitor, and edit the plan\n\n**Example structure:**```\n- [ ] Analyze requirements\n- [ ] Set up necessary files\n- [ ] Implement main functionality\n- [ ] Handle edge cases\n- [ ] Test the implementation\n- [ ] Verify results```\n\nKeeping the task_progress list updated helps track progress and ensures nothing is missed.\n"
+              "text": "New instructions for task continuation:\n<user_message>\n[overflow/2]\nChunk 2/4. Store this block in task context for later turns.\nDo not quote or repeat the block.\nOnly use attempt_completion.\n\n[BLOCK-START]\nblk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij bl\n[BLOCK-END]\n\nUse attempt_completion tool immediately.\nSet result to exactly this text and nothing else:\nOVF-ACK-2\n</user_message>"
             },
             {
               "type": "text",
-              "text": "<environment_details>\n# Cline CLI - Node.js Visible Files\n(No visible files)\n\n# Cline CLI - Node.js Open Tabs\n(No open tabs)\n\n# Current Time\n1/1/1970, 12:00:00 AM (UTC, UTC+0:00)\n\n\n# Current Working Directory (/workspace) Files\nREADME.md\n\n# Workspace Configuration\n{\n  \"workspaces\": {\n    \"/workspace\": {\n      \"hint\": \"workspace\",\n      \"associatedRemoteUrls\": [\n        \"origin: https://github.com/test/test.git\"\n      ],\n      \"latestGitCommitHash\": \"0000000000000000000000000000000000000000\"\n    }\n  }\n}\n\n# Detected CLI Tools\nThese are some of the tools on the user's machine, and may be useful if needed to accomplish the task: gh, git, docker, kubectl, aws, gcloud, npm, curl, jq, make, node, sqlite3, grep, sed, awk, bundle. This list is not exhaustive, and other tools may be available.\n\n# Context Window Usage\n0 / 256K tokens used (0%)\n\n# Current Mode\nACT MODE\n</environment_details>"
+              "text": "<environment_details>\n# Cline CLI - Node.js Visible Files\n(No visible files)\n\n# Cline CLI - Node.js Open Tabs\n(No open tabs)\n\n# Current Time\n1/1/1970, 12:00:00 AM (UTC, UTC+0:00)\n\n# Current Working Directory (/workspace) Files\nREADME.md\n\n# Workspace Configuration\n{\n  \"workspaces\": {\n    \"/workspace\": {\n      \"hint\": \"workspace\",\n      \"associatedRemoteUrls\": [\n        \"origin: https://github.com/test/test.git\"\n      ],\n      \"latestGitCommitHash\": \"0000000000000000000000000000000000000000\"\n    }\n  }\n}\n\n# Detected CLI Tools\nThese are some of the tools on the user's machine, and may be useful if needed to accomplish the task: gh, git, docker, kubectl, aws, gcloud, npm, curl, jq, make, node, sqlite3, grep, sed, awk, bundle. This list is not exhaustive, and other tools may be available.\n\n# Context Window Usage\n0 / 200K tokens used (0%)\n\n# Current Mode\nACT MODE\n</environment_details>"
             }
           ]
         },
         {
           "role": "assistant",
-          "content": "<attempt_completion>\n<result>OVF-ACK-1</result>\n</attempt_completion>\n\n[Response interrupted by user]"
+          "content": "<attempt_completion>\n<result>OVF-ACK-2</result>\n</attempt_completion>\n\n[Response interrupted by user]"
         },
         {
           "role": "user",
@@ -47,24 +47,7 @@
             },
             {
               "type": "text",
-              "text": "\n# task_progress RECOMMENDED\n\nWhen starting a new task, it is recommended to include a todo list using the task_progress parameter.\n\n\n1. Include a todo list using the task_progress parameter in your next tool call\n2. Create a comprehensive checklist of all steps needed\n3. Use markdown format: - [ ] for incomplete, - [x] for complete\n\n**Benefits of creating a todo/task_progress list now:**\n\t- Clear roadmap for implementation\n\t- Progress tracking throughout the task\n\t- Nothing gets forgotten or missed\n\t- Users can see, monitor, and edit the plan\n\n**Example structure:**```\n- [ ] Analyze requirements\n- [ ] Set up necessary files\n- [ ] Implement main functionality\n- [ ] Handle edge cases\n- [ ] Test the implementation\n- [ ] Verify results```\n\nKeeping the task_progress list updated helps track progress and ensures nothing is missed.\n"
-            },
-            {
-              "type": "text",
-              "text": "<environment_details>\n# Cline CLI - Node.js Visible Files\n(No visible files)\n\n# Cline CLI - Node.js Open Tabs\n(No open tabs)\n\n# Current Time\n1/1/1970, 12:00:00 AM (UTC, UTC+0:00)\n\n\n# Current Working Directory (/workspace) Files\nREADME.md\n\n# Workspace Configuration\n{\n  \"workspaces\": {\n    \"/workspace\": {\n      \"hint\": \"workspace\",\n      \"associatedRemoteUrls\": [\n        \"origin: https://github.com/test/test.git\"\n      ],\n      \"latestGitCommitHash\": \"0000000000000000000000000000000000000000\"\n    }\n  }\n}\n\n# Detected CLI Tools\nThese are some of the tools on the user's machine, and may be useful if needed to accomplish the task: gh, git, docker, kubectl, aws, gcloud, npm, curl, jq, make, node, sqlite3, grep, sed, awk, bundle. This list is not exhaustive, and other tools may be available.\n\n# Context Window Usage\n11,699 / 256K tokens used (5%)\n\n# Current Mode\nACT MODE\n</environment_details>"
-            }
-          ]
-        },
-        {
-          "role": "assistant",
-          "content": "<attempt_completion>\n<result>OVF-ACK-2</result>\n</attempt_completion>\n\n\n\n[Response interrupted by user]"
-        },
-        {
-          "role": "user",
-          "content": [
-            {
-              "type": "text",
-              "text": "[TASK RESUMPTION] This task was interrupted just now. It may or may not be complete, so please reassess the task context. Be aware that the project state may have changed since then. The current working directory is now '/workspace'. If the task has not been completed, retry the last step before interruption and proceed with completing the task.\n\nNote: If you previously attempted a tool use that the user did not provide a result for, you should assume the tool use was not successful and assess whether you should retry. If the last tool was a browser_action, the browser has been closed and you must launch a new browser if needed.\n\nIMPORTANT: If the last tool use was a replace_in_file or write_to_file that was interrupted, the file was reverted back to its original state before the interrupted edit, and you do NOT need to re-read the file as you already have its up-to-date contents."
+              "text": "<environment_details>\n# Cline CLI - Node.js Visible Files\n(No visible files)\n\n# Cline CLI - Node.js Open Tabs\n(No open tabs)\n\n# Current Time\n1/1/1970, 12:00:00 AM (UTC, UTC+0:00)\n\n# Current Working Directory (/workspace) Files\nREADME.md\n\n# Workspace Configuration\n{\n  \"workspaces\": {\n    \"/workspace\": {\n      \"hint\": \"workspace\",\n      \"associatedRemoteUrls\": [\n        \"origin: https://github.com/test/test.git\"\n      ],\n      \"latestGitCommitHash\": \"0000000000000000000000000000000000000000\"\n    }\n  }\n}\n\n# Detected CLI Tools\nThese are some of the tools on the user's machine, and may be useful if needed to accomplish the task: gh, git, docker, kubectl, aws, gcloud, npm, curl, jq, make, node, sqlite3, grep, sed, awk, bundle. This list is not exhaustive, and other tools may be available.\n\n# Context Window Usage\n0 / 200K tokens used (0%)\n\n# Current Mode\nACT MODE\n</environment_details>\n\n[TASK RESUMPTION] This task was interrupted just now. It may or may not be complete, so please reassess the task context. Be aware that the project state may have changed since then. The current working directory is now '/workspace'. If the task has not been completed, retry the last step before interruption and proceed with completing the task.\n\nNote: If you previously attempted a tool use that the user did not provide a result for, you should assume the tool use was not successful and assess whether you should retry. If the last tool was a browser_action, the browser has been closed and you must launch a new browser if needed.\n\nIMPORTANT: If the last tool use was a replace_in_file or write_to_file that was interrupted, the file was reverted back to its original state before the interrupted edit, and you do NOT need to re-read the file as you already have its up-to-date contents."
             },
             {
               "type": "text",
@@ -72,36 +55,7 @@
             },
             {
               "type": "text",
-              "text": "\n# task_progress RECOMMENDED\n\nWhen starting a new task, it is recommended to include a todo list using the task_progress parameter.\n\n\n1. Include a todo list using the task_progress parameter in your next tool call\n2. Create a comprehensive checklist of all steps needed\n3. Use markdown format: - [ ] for incomplete, - [x] for complete\n\n**Benefits of creating a todo/task_progress list now:**\n\t- Clear roadmap for implementation\n\t- Progress tracking throughout the task\n\t- Nothing gets forgotten or missed\n\t- Users can see, monitor, and edit the plan\n\n**Example structure:**```\n- [ ] Analyze requirements\n- [ ] Set up necessary files\n- [ ] Implement main functionality\n- [ ] Handle edge cases\n- [ ] Test the implementation\n- [ ] Verify results```\n\nKeeping the task_progress list updated helps track progress and ensures nothing is missed.\n"
-            },
-            {
-              "type": "text",
-              "text": "<environment_details>\n# Cline CLI - Node.js Visible Files\n(No visible files)\n\n# Cline CLI - Node.js Open Tabs\n(No open tabs)\n\n# Current Time\n1/1/1970, 12:00:00 AM (UTC, UTC+0:00)\n\n\n# Current Working Directory (/workspace) Files\nREADME.md\n\n# Workspace Configuration\n{\n  \"workspaces\": {\n    \"/workspace\": {\n      \"hint\": \"workspace\",\n      \"associatedRemoteUrls\": [\n        \"origin: https://github.com/test/test.git\"\n      ],\n      \"latestGitCommitHash\": \"0000000000000000000000000000000000000000\"\n    }\n  }\n}\n\n# Detected CLI Tools\nThese are some of the tools on the user's machine, and may be useful if needed to accomplish the task: gh, git, docker, kubectl, aws, gcloud, npm, curl, jq, make, node, sqlite3, grep, sed, awk, bundle. This list is not exhaustive, and other tools may be available.\n\n# Context Window Usage\n13,521 / 256K tokens used (5%)\n\n# Current Mode\nACT MODE\n</environment_details>"
-            }
-          ]
-        },
-        {
-          "role": "assistant",
-          "content": "<attempt_completion>\n<result>OVF-ACK-3</result>\n</attempt_completion>\n\n\n\n\n\n[Response interrupted by user]"
-        },
-        {
-          "role": "user",
-          "content": [
-            {
-              "type": "text",
-              "text": "[TASK RESUMPTION] This task was interrupted just now. It may or may not be complete, so please reassess the task context. Be aware that the project state may have changed since then. The current working directory is now '/workspace'. If the task has not been completed, retry the last step before interruption and proceed with completing the task.\n\nNote: If you previously attempted a tool use that the user did not provide a result for, you should assume the tool use was not successful and assess whether you should retry. If the last tool was a browser_action, the browser has been closed and you must launch a new browser if needed.\n\nIMPORTANT: If the last tool use was a replace_in_file or write_to_file that was interrupted, the file was reverted back to its original state before the interrupted edit, and you do NOT need to re-read the file as you already have its up-to-date contents."
-            },
-            {
-              "type": "text",
-              "text": "New instructions for task continuation:\n<user_message>\n[overflow/4]\nChunk 4/4. Store this block in task context for later turns.\nDo not quote or repeat the block.\nOnly use attempt_completion.\n\n[BLOCK-START]\nblk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij bl\n[BLOCK-END]\n\nUse attempt_completion tool immediately.\nSet result to exactly this text and nothing else:\nOVF-ACK-4\n</user_message>"
-            },
-            {
-              "type": "text",
-              "text": "\n# task_progress RECOMMENDED\n\nWhen starting a new task, it is recommended to include a todo list using the task_progress parameter.\n\n\n1. Include a todo list using the task_progress parameter in your next tool call\n2. Create a comprehensive checklist of all steps needed\n3. Use markdown format: - [ ] for incomplete, - [x] for complete\n\n**Benefits of creating a todo/task_progress list now:**\n\t- Clear roadmap for implementation\n\t- Progress tracking throughout the task\n\t- Nothing gets forgotten or missed\n\t- Users can see, monitor, and edit the plan\n\n**Example structure:**```\n- [ ] Analyze requirements\n- [ ] Set up necessary files\n- [ ] Implement main functionality\n- [ ] Handle edge cases\n- [ ] Test the implementation\n- [ ] Verify results```\n\nKeeping the task_progress list updated helps track progress and ensures nothing is missed.\n"
-            },
-            {
-              "type": "text",
-              "text": "<environment_details>\n# Cline CLI - Node.js Visible Files\n(No visible files)\n\n# Cline CLI - Node.js Open Tabs\n(No open tabs)\n\n# Current Time\n1/1/1970, 12:00:00 AM (UTC, UTC+0:00)\n\n\n# Current Working Directory (/workspace) Files\nREADME.md\n\n# Workspace Configuration\n{\n  \"workspaces\": {\n    \"/workspace\": {\n      \"hint\": \"workspace\",\n      \"associatedRemoteUrls\": [\n        \"origin: https://github.com/test/test.git\"\n      ],\n      \"latestGitCommitHash\": \"0000000000000000000000000000000000000000\"\n    }\n  }\n}\n\n# Detected CLI Tools\nThese are some of the tools on the user's machine, and may be useful if needed to accomplish the task: gh, git, docker, kubectl, aws, gcloud, npm, curl, jq, make, node, sqlite3, grep, sed, awk, bundle. This list is not exhaustive, and other tools may be available.\n\n# Context Window Usage\n15,337 / 256K tokens used (6%)\n\n# Current Mode\nACT MODE\n</environment_details>"
+              "text": "<environment_details>\n# Cline CLI - Node.js Visible Files\n(No visible files)\n\n# Cline CLI - Node.js Open Tabs\n(No open tabs)\n\n# Current Time\n1/1/1970, 12:00:00 AM (UTC, UTC+0:00)\n\n# Current Working Directory (/workspace) Files\nREADME.md\n\n# Workspace Configuration\n{\n  \"workspaces\": {\n    \"/workspace\": {\n      \"hint\": \"workspace\",\n      \"associatedRemoteUrls\": [\n        \"origin: https://github.com/test/test.git\"\n      ],\n      \"latestGitCommitHash\": \"0000000000000000000000000000000000000000\"\n    }\n  }\n}\n\n# Detected CLI Tools\nThese are some of the tools on the user's machine, and may be useful if needed to accomplish the task: gh, git, docker, kubectl, aws, gcloud, npm, curl, jq, make, node, sqlite3, grep, sed, awk, bundle. This list is not exhaustive, and other tools may be available.\n\n# Context Window Usage\n11,908 / 200K tokens used (6%)\n\n# Current Mode\nACT MODE\n</environment_details>"
             }
           ]
         },
@@ -118,15 +72,35 @@
             },
             {
               "type": "text",
+              "text": "New instructions for task continuation:\n<user_message>\n[overflow/2]\nChunk 2/4. Store this block in task context for later turns.\nDo not quote or repeat the block.\nOnly use attempt_completion.\n\n[BLOCK-START]\nblk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij blk2-1 abcdefghij bl\n[BLOCK-END]\n\nUse attempt_completion tool immediately.\nSet result to exactly this text and nothing else:\nOVF-ACK-2\n</user_message>"
+            },
+            {
+              "type": "text",
+              "text": "<environment_details>\n# Cline CLI - Node.js Visible Files\n(No visible files)\n\n# Cline CLI - Node.js Open Tabs\n(No open tabs)\n\n# Current Time\n1/1/1970, 12:00:00 AM (UTC, UTC+0:00)\n\n# Current Working Directory (/workspace) Files\nREADME.md\n\n# Workspace Configuration\n{\n  \"workspaces\": {\n    \"/workspace\": {\n      \"hint\": \"workspace\",\n      \"associatedRemoteUrls\": [\n        \"origin: https://github.com/test/test.git\"\n      ],\n      \"latestGitCommitHash\": \"0000000000000000000000000000000000000000\"\n    }\n  }\n}\n\n# Detected CLI Tools\nThese are some of the tools on the user's machine, and may be useful if needed to accomplish the task: gh, git, docker, kubectl, aws, gcloud, npm, curl, jq, make, node, sqlite3, grep, sed, awk, bundle. This list is not exhaustive, and other tools may be available.\n\n# Context Window Usage\n0 / 200K tokens used (0%)\n\n# Current Mode\nACT MODE\n</environment_details>\n\n[TASK RESUMPTION] This task was interrupted just now. It may or may not be complete, so please reassess the task context. Be aware that the project state may have changed since then. The current working directory is now '/workspace'. If the task has not been completed, retry the last step before interruption and proceed with completing the task.\n\nNote: If you previously attempted a tool use that the user did not provide a result for, you should assume the tool use was not successful and assess whether you should retry. If the last tool was a browser_action, the browser has been closed and you must launch a new browser if needed.\n\nIMPORTANT: If the last tool use was a replace_in_file or write_to_file that was interrupted, the file was reverted back to its original state before the interrupted edit, and you do NOT need to re-read the file as you already have its up-to-date contents."
+            },
+            {
+              "type": "text",
+              "text": "New instructions for task continuation:\n<user_message>\n[overflow/3]\nChunk 3/4. Store this block in task context for later turns.\nDo not quote or repeat the block.\nOnly use attempt_completion.\n\n[BLOCK-START]\nblk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij blk3-2 abcdefghij bl\n[BLOCK-END]\n\nUse attempt_completion tool immediately.\nSet result to exactly this text and nothing else:\nOVF-ACK-3\n</user_message>"
+            },
+            {
+              "type": "text",
+              "text": "<environment_details>\n# Cline CLI - Node.js Visible Files\n(No visible files)\n\n# Cline CLI - Node.js Open Tabs\n(No open tabs)\n\n# Current Time\n1/1/1970, 12:00:00 AM (UTC, UTC+0:00)\n\n# Current Working Directory (/workspace) Files\nREADME.md\n\n# Workspace Configuration\n{\n  \"workspaces\": {\n    \"/workspace\": {\n      \"hint\": \"workspace\",\n      \"associatedRemoteUrls\": [\n        \"origin: https://github.com/test/test.git\"\n      ],\n      \"latestGitCommitHash\": \"0000000000000000000000000000000000000000\"\n    }\n  }\n}\n\n# Detected CLI Tools\nThese are some of the tools on the user's machine, and may be useful if needed to accomplish the task: gh, git, docker, kubectl, aws, gcloud, npm, curl, jq, make, node, sqlite3, grep, sed, awk, bundle. This list is not exhaustive, and other tools may be available.\n\n# Context Window Usage\n11,908 / 200K tokens used (6%)\n\n# Current Mode\nACT MODE\n</environment_details>\n\n[TASK RESUMPTION] This task was interrupted just now. It may or may not be complete, so please reassess the task context. Be aware that the project state may have changed since then. The current working directory is now '/workspace'. If the task has not been completed, retry the last step before interruption and proceed with completing the task.\n\nNote: If you previously attempted a tool use that the user did not provide a result for, you should assume the tool use was not successful and assess whether you should retry. If the last tool was a browser_action, the browser has been closed and you must launch a new browser if needed.\n\nIMPORTANT: If the last tool use was a replace_in_file or write_to_file that was interrupted, the file was reverted back to its original state before the interrupted edit, and you do NOT need to re-read the file as you already have its up-to-date contents."
+            },
+            {
+              "type": "text",
+              "text": "New instructions for task continuation:\n<user_message>\n[overflow/4]\nChunk 4/4. Store this block in task context for later turns.\nDo not quote or repeat the block.\nOnly use attempt_completion.\n\n[BLOCK-START]\nblk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij blk4-3 abcdefghij bl\n[BLOCK-END]\n\nUse attempt_completion tool immediately.\nSet result to exactly this text and nothing else:\nOVF-ACK-4\n</user_message>"
+            },
+            {
+              "type": "text",
+              "text": "<environment_details>\n# Cline CLI - Node.js Visible Files\n(No visible files)\n\n# Cline CLI - Node.js Open Tabs\n(No open tabs)\n\n# Current Time\n1/1/1970, 12:00:00 AM (UTC, UTC+0:00)\n\n# Current Working Directory (/workspace) Files\nREADME.md\n\n# Workspace Configuration\n{\n  \"workspaces\": {\n    \"/workspace\": {\n      \"hint\": \"workspace\",\n      \"associatedRemoteUrls\": [\n        \"origin: https://github.com/test/test.git\"\n      ],\n      \"latestGitCommitHash\": \"0000000000000000000000000000000000000000\"\n    }\n  }\n}\n\n# Detected CLI Tools\nThese are some of the tools on the user's machine, and may be useful if needed to accomplish the task: gh, git, docker, kubectl, aws, gcloud, npm, curl, jq, make, node, sqlite3, grep, sed, awk, bundle. This list is not exhaustive, and other tools may be available.\n\n# Context Window Usage\n13,505 / 200K tokens used (7%)\n\n# Current Mode\nACT MODE\n</environment_details>\n\n[TASK RESUMPTION] This task was interrupted just now. It may or may not be complete, so please reassess the task context. Be aware that the project state may have changed since then. The current working directory is now '/workspace'. If the task has not been completed, retry the last step before interruption and proceed with completing the task.\n\nNote: If you previously attempted a tool use that the user did not provide a result for, you should assume the tool use was not successful and assess whether you should retry. If the last tool was a browser_action, the browser has been closed and you must launch a new browser if needed.\n\nIMPORTANT: If the last tool use was a replace_in_file or write_to_file that was interrupted, the file was reverted back to its original state before the interrupted edit, and you do NOT need to re-read the file as you already have its up-to-date contents."
+            },
+            {
+              "type": "text",
               "text": "New instructions for task continuation:\n<user_message>\n[overflow/switch]\nModel switched. Only use attempt_completion.\nUse attempt_completion tool.\nSet result to exactly this text and nothing else:\nOVF-SWITCH-OK\n</user_message>"
             },
             {
               "type": "text",
-              "text": "\n# task_progress RECOMMENDED\n\nWhen starting a new task, it is recommended to include a todo list using the task_progress parameter.\n\n\n1. Include a todo list using the task_progress parameter in your next tool call\n2. Create a comprehensive checklist of all steps needed\n3. Use markdown format: - [ ] for incomplete, - [x] for complete\n\n**Benefits of creating a todo/task_progress list now:**\n\t- Clear roadmap for implementation\n\t- Progress tracking throughout the task\n\t- Nothing gets forgotten or missed\n\t- Users can see, monitor, and edit the plan\n\n**Example structure:**```\n- [ ] Analyze requirements\n- [ ] Set up necessary files\n- [ ] Implement main functionality\n- [ ] Handle edge cases\n- [ ] Test the implementation\n- [ ] Verify results```\n\nKeeping the task_progress list updated helps track progress and ensures nothing is missed.\n"
-            },
-            {
-              "type": "text",
-              "text": "<environment_details>\n# Cline CLI - Node.js Visible Files\n(No visible files)\n\n# Cline CLI - Node.js Open Tabs\n(No open tabs)\n\n# Current Time\n1/1/1970, 12:00:00 AM (UTC, UTC+0:00)\n\n\n# Current Working Directory (/workspace) Files\nREADME.md\n\n# Workspace Configuration\n{\n  \"workspaces\": {\n    \"/workspace\": {\n      \"hint\": \"workspace\",\n      \"associatedRemoteUrls\": [\n        \"origin: https://github.com/test/test.git\"\n      ],\n      \"latestGitCommitHash\": \"0000000000000000000000000000000000000000\"\n    }\n  }\n}\n\n# Detected CLI Tools\nThese are some of the tools on the user's machine, and may be useful if needed to accomplish the task: gh, git, docker, kubectl, aws, gcloud, npm, curl, jq, make, node, sqlite3, grep, sed, awk, bundle. This list is not exhaustive, and other tools may be available.\n\n# Context Window Usage\n17,155 / 256K tokens used (7%)\n\n# Current Mode\nACT MODE\n</environment_details>"
+              "text": "<environment_details>\n# Cline CLI - Node.js Visible Files\n(No visible files)\n\n# Cline CLI - Node.js Open Tabs\n(No open tabs)\n\n# Current Time\n1/1/1970, 12:00:00 AM (UTC, UTC+0:00)\n\n# Current Working Directory (/workspace) Files\nREADME.md\n\n# Workspace Configuration\n{\n  \"workspaces\": {\n    \"/workspace\": {\n      \"hint\": \"workspace\",\n      \"associatedRemoteUrls\": [\n        \"origin: https://github.com/test/test.git\"\n      ],\n      \"latestGitCommitHash\": \"0000000000000000000000000000000000000000\"\n    }\n  }\n}\n\n# Detected CLI Tools\nThese are some of the tools on the user's machine, and may be useful if needed to accomplish the task: gh, git, docker, kubectl, aws, gcloud, npm, curl, jq, make, node, sqlite3, grep, sed, awk, bundle. This list is not exhaustive, and other tools may be available.\n\n# Context Window Usage\n13,505 / 200K tokens used (7%)\n\n# Current Mode\nACT MODE\n</environment_details>\n\nLoading..."
             }
           ]
         }
@@ -144,382 +118,54 @@
     },
     "body": [
       {
-        "id": "gen-1772891216-IWwgOWvOf20wMT1tk2gR",
+        "id": "synthetic-1773286118679",
         "object": "chat.completion.chunk",
-        "created": 1772891216,
+        "created": 1773286118,
         "model": "arcee-ai/trinity-large-preview:free",
-        "provider": "Arcee AI",
         "choices": [
           {
             "index": 0,
             "delta": {
-              "content": "<",
               "role": "assistant"
             },
-            "finish_reason": null,
-            "native_finish_reason": null
+            "finish_reason": null
           }
         ]
       },
       {
-        "id": "gen-1772891216-IWwgOWvOf20wMT1tk2gR",
+        "id": "synthetic-1773286118679",
         "object": "chat.completion.chunk",
-        "created": 1772891216,
+        "created": 1773286118,
         "model": "arcee-ai/trinity-large-preview:free",
-        "provider": "Arcee AI",
         "choices": [
           {
             "index": 0,
             "delta": {
-              "content": "attempt",
-              "role": "assistant"
+              "content": "<attempt_completion>\n<result>OVF-ACK-1</result>\n</attempt_completion>"
             },
-            "finish_reason": null,
-            "native_finish_reason": null
+            "finish_reason": null
           }
         ]
       },
       {
-        "id": "gen-1772891216-IWwgOWvOf20wMT1tk2gR",
+        "id": "synthetic-1773286118679",
         "object": "chat.completion.chunk",
-        "created": 1772891216,
+        "created": 1773286118,
         "model": "arcee-ai/trinity-large-preview:free",
-        "provider": "Arcee AI",
         "choices": [
           {
             "index": 0,
-            "delta": {
-              "content": "_completion",
-              "role": "assistant"
-            },
-            "finish_reason": null,
-            "native_finish_reason": null
+            "delta": {},
+            "finish_reason": "stop"
           }
-        ]
-      },
-      {
-        "id": "gen-1772891216-IWwgOWvOf20wMT1tk2gR",
-        "object": "chat.completion.chunk",
-        "created": 1772891216,
-        "model": "arcee-ai/trinity-large-preview:free",
-        "provider": "Arcee AI",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": ">\n",
-              "role": "assistant"
-            },
-            "finish_reason": null,
-            "native_finish_reason": null
+        ],
+        "usage": {
+          "prompt_tokens": 100,
+          "completion_tokens": 20,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
           }
-        ]
-      },
-      {
-        "id": "gen-1772891216-IWwgOWvOf20wMT1tk2gR",
-        "object": "chat.completion.chunk",
-        "created": 1772891216,
-        "model": "arcee-ai/trinity-large-preview:free",
-        "provider": "Arcee AI",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": "<",
-              "role": "assistant"
-            },
-            "finish_reason": null,
-            "native_finish_reason": null
-          }
-        ]
-      },
-      {
-        "id": "gen-1772891216-IWwgOWvOf20wMT1tk2gR",
-        "object": "chat.completion.chunk",
-        "created": 1772891216,
-        "model": "arcee-ai/trinity-large-preview:free",
-        "provider": "Arcee AI",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": "result",
-              "role": "assistant"
-            },
-            "finish_reason": null,
-            "native_finish_reason": null
-          }
-        ]
-      },
-      {
-        "id": "gen-1772891216-IWwgOWvOf20wMT1tk2gR",
-        "object": "chat.completion.chunk",
-        "created": 1772891216,
-        "model": "arcee-ai/trinity-large-preview:free",
-        "provider": "Arcee AI",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": ">",
-              "role": "assistant"
-            },
-            "finish_reason": null,
-            "native_finish_reason": null
-          }
-        ]
-      },
-      {
-        "id": "gen-1772891216-IWwgOWvOf20wMT1tk2gR",
-        "object": "chat.completion.chunk",
-        "created": 1772891216,
-        "model": "arcee-ai/trinity-large-preview:free",
-        "provider": "Arcee AI",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": "OV",
-              "role": "assistant"
-            },
-            "finish_reason": null,
-            "native_finish_reason": null
-          }
-        ]
-      },
-      {
-        "id": "gen-1772891216-IWwgOWvOf20wMT1tk2gR",
-        "object": "chat.completion.chunk",
-        "created": 1772891216,
-        "model": "arcee-ai/trinity-large-preview:free",
-        "provider": "Arcee AI",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": "F",
-              "role": "assistant"
-            },
-            "finish_reason": null,
-            "native_finish_reason": null
-          }
-        ]
-      },
-      {
-        "id": "gen-1772891216-IWwgOWvOf20wMT1tk2gR",
-        "object": "chat.completion.chunk",
-        "created": 1772891216,
-        "model": "arcee-ai/trinity-large-preview:free",
-        "provider": "Arcee AI",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": "-",
-              "role": "assistant"
-            },
-            "finish_reason": null,
-            "native_finish_reason": null
-          }
-        ]
-      },
-      {
-        "id": "gen-1772891216-IWwgOWvOf20wMT1tk2gR",
-        "object": "chat.completion.chunk",
-        "created": 1772891216,
-        "model": "arcee-ai/trinity-large-preview:free",
-        "provider": "Arcee AI",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": "SWITCH",
-              "role": "assistant"
-            },
-            "finish_reason": null,
-            "native_finish_reason": null
-          }
-        ]
-      },
-      {
-        "id": "gen-1772891216-IWwgOWvOf20wMT1tk2gR",
-        "object": "chat.completion.chunk",
-        "created": 1772891216,
-        "model": "arcee-ai/trinity-large-preview:free",
-        "provider": "Arcee AI",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": "-",
-              "role": "assistant"
-            },
-            "finish_reason": null,
-            "native_finish_reason": null
-          }
-        ]
-      },
-      {
-        "id": "gen-1772891216-IWwgOWvOf20wMT1tk2gR",
-        "object": "chat.completion.chunk",
-        "created": 1772891216,
-        "model": "arcee-ai/trinity-large-preview:free",
-        "provider": "Arcee AI",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": "OK",
-              "role": "assistant"
-            },
-            "finish_reason": null,
-            "native_finish_reason": null
-          }
-        ]
-      },
-      {
-        "id": "gen-1772891216-IWwgOWvOf20wMT1tk2gR",
-        "object": "chat.completion.chunk",
-        "created": 1772891216,
-        "model": "arcee-ai/trinity-large-preview:free",
-        "provider": "Arcee AI",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": "</",
-              "role": "assistant"
-            },
-            "finish_reason": null,
-            "native_finish_reason": null
-          }
-        ]
-      },
-      {
-        "id": "gen-1772891216-IWwgOWvOf20wMT1tk2gR",
-        "object": "chat.completion.chunk",
-        "created": 1772891216,
-        "model": "arcee-ai/trinity-large-preview:free",
-        "provider": "Arcee AI",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": "result",
-              "role": "assistant"
-            },
-            "finish_reason": null,
-            "native_finish_reason": null
-          }
-        ]
-      },
-      {
-        "id": "gen-1772891216-IWwgOWvOf20wMT1tk2gR",
-        "object": "chat.completion.chunk",
-        "created": 1772891216,
-        "model": "arcee-ai/trinity-large-preview:free",
-        "provider": "Arcee AI",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": ">\n",
-              "role": "assistant"
-            },
-            "finish_reason": null,
-            "native_finish_reason": null
-          }
-        ]
-      },
-      {
-        "id": "gen-1772891216-IWwgOWvOf20wMT1tk2gR",
-        "object": "chat.completion.chunk",
-        "created": 1772891216,
-        "model": "arcee-ai/trinity-large-preview:free",
-        "provider": "Arcee AI",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": "</",
-              "role": "assistant"
-            },
-            "finish_reason": null,
-            "native_finish_reason": null
-          }
-        ]
-      },
-      {
-        "id": "gen-1772891216-IWwgOWvOf20wMT1tk2gR",
-        "object": "chat.completion.chunk",
-        "created": 1772891216,
-        "model": "arcee-ai/trinity-large-preview:free",
-        "provider": "Arcee AI",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": "attempt",
-              "role": "assistant"
-            },
-            "finish_reason": null,
-            "native_finish_reason": null
-          }
-        ]
-      },
-      {
-        "id": "gen-1772891216-IWwgOWvOf20wMT1tk2gR",
-        "object": "chat.completion.chunk",
-        "created": 1772891216,
-        "model": "arcee-ai/trinity-large-preview:free",
-        "provider": "Arcee AI",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": "_completion",
-              "role": "assistant"
-            },
-            "finish_reason": null,
-            "native_finish_reason": null
-          }
-        ]
-      },
-      {
-        "id": "gen-1772891216-IWwgOWvOf20wMT1tk2gR",
-        "object": "chat.completion.chunk",
-        "created": 1772891216,
-        "model": "arcee-ai/trinity-large-preview:free",
-        "provider": "Arcee AI",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": ">\n\n",
-              "role": "assistant"
-            },
-            "finish_reason": null,
-            "native_finish_reason": null
-          }
-        ]
-      },
-      {
-        "id": "gen-1772891216-IWwgOWvOf20wMT1tk2gR",
-        "object": "chat.completion.chunk",
-        "created": 1772891216,
-        "model": "arcee-ai/trinity-large-preview:free",
-        "provider": "Arcee AI",
-        "choices": [
-          {
-            "index": 0,
-            "delta": {
-              "content": "[",
-              "role": "assistant"
-            },
-            "finish_reason": null,
-            "native_finish_reason": null
-          }
-        ]
+        }
       }
     ]
   }

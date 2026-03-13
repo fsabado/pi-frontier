@@ -3,14 +3,14 @@
     "turn": 1,
     "model": "cline/kwaipilot/kat-coder-pro",
     "taskId": "0000000000000",
-    "durationMs": 30036,
-    "recordedCalls": 4
+    "durationMs": 44786,
+    "recordedCalls": 1
   },
   {
     "turn": 2,
     "model": "cline/kwaipilot/kat-coder-pro",
     "taskId": "0000000000000",
-    "durationMs": 21531,
-    "recordedCalls": 3
+    "durationMs": 20104,
+    "recordedCalls": 1
   }
 ]
