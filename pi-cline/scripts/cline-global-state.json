@@ -1,0 +1,9 @@
+{
+  "actModeApiProvider": "cline",
+  "planModeApiProvider": "cline",
+  "clineWebToolsEnabled": false,
+  "focusChainSettings": {
+    "enabled": false,
+    "remindClineInterval": 0
+  }
+}

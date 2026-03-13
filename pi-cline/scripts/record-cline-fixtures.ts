@@ -1,5 +1,13 @@
 import { spawn } from "node:child_process";
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { stripVTControlCharacters } from "node:util";
@@ -24,6 +32,11 @@ interface CapturedCall {
 }
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const SCRIPT_CLINE_GLOBAL_STATE = path.join(
+  ROOT,
+  "scripts",
+  "cline-global-state.json",
+);
 const OUT = path.join(ROOT, "test/scenarios");
 const ENTRY = path.join(ROOT, "node_modules/cline/dist/cli.mjs");
 const RUNNER = path.join(ROOT, "scripts/cline-single-turn-runner.mjs");
@@ -208,7 +221,21 @@ const SCENARIOS: Scenario[] = [
   },
 ];
 
-function spawnRunner(args: string[]): Promise<{ code: number; out: string }> {
+function createRuntimeClineDir(): string {
+  const runtimeDir = mkdtempSync(path.join(os.tmpdir(), "pi-cline-record-"));
+  const dataDir = path.join(runtimeDir, "data");
+  mkdirSync(dataDir, { recursive: true });
+  copyFileSync(
+    SCRIPT_CLINE_GLOBAL_STATE,
+    path.join(dataDir, "globalState.json"),
+  );
+  return runtimeDir;
+}
+
+function spawnRunner(
+  args: string[],
+  clineDir: string,
+): Promise<{ code: number; out: string }> {
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, [RUNNER], {
       cwd: ROOT,
@@ -217,6 +244,7 @@ function spawnRunner(args: string[]): Promise<{ code: number; out: string }> {
         ...process.env,
         FORCE_COLOR: "0",
         NO_COLOR: "1",
+        CLINE_DIR: clineDir,
         CLINE_NON_INTERACTIVE: "1",
         CLINE_RUNNER_ARGS_JSON: JSON.stringify(args),
         CLINE_RUNNER_ENTRY: ENTRY,
@@ -263,6 +291,7 @@ async function runTurn(
   prompt: string,
   model: string,
   cwd: string,
+  clineDir: string,
   taskId?: string,
 ) {
   const modelId = model.replace(/^cline\//, "");
@@ -273,7 +302,7 @@ async function runTurn(
   let lastErr = new Error("runTurn: no attempts");
   for (let attempt = 1; attempt <= RETRIES; attempt++) {
     const startTime = Date.now();
-    const { code, out } = await spawnRunner(args);
+    const { code, out } = await spawnRunner(args, clineDir);
     const raw = stripVTControlCharacters(out);
     const { clean, calls } = parseCaptures(raw);
 
@@ -362,46 +391,68 @@ async function record(slug: string, turns: Turn[]) {
   const fixturesDir = path.join(root, "fixtures");
   const logsDir = path.join(root, "logs");
   const workspaceDir = path.join(root, "workspace");
-  for (const dir of [fixturesDir, logsDir, workspaceDir])
-    mkdirSync(dir, { recursive: true });
-  writeFileSync(path.join(workspaceDir, "README.md"), "# workspace\n");
-  writeJsonFile(
-    path.join(logsDir, "prompts.json"),
-    turns.map((turn, index) => ({
-      turn: index + 1,
-      model: turn.model,
-      prompt: turn.prompt,
-    })),
-  );
+  const clineDir = createRuntimeClineDir();
 
-  const turnLogs: unknown[] = [];
-  let taskId: string | undefined;
-
-  for (let index = 0; index < turns.length; index++) {
-    const turn = turns[index];
-    console.log(`[record]   turn ${index + 1}/${turns.length} [${turn.model}]`);
-    const result = await runTurn(turn.prompt, turn.model, workspaceDir, taskId);
-    taskId = result.taskId;
-
-    const lastCall = result.calls[result.calls.length - 1];
-    const fixture = JSON.parse(
-      sanitize(JSON.stringify(buildFixture(lastCall)), workspaceDir),
+  try {
+    for (const dir of [fixturesDir, logsDir, workspaceDir])
+      mkdirSync(dir, { recursive: true });
+    writeFileSync(path.join(workspaceDir, "README.md"), "# workspace\n");
+    writeJsonFile(
+      path.join(logsDir, "prompts.json"),
+      turns.map((turn, index) => ({
+        turn: index + 1,
+        model: turn.model,
+        prompt: turn.prompt,
+      })),
     );
-    const fileName = `turn-${String(index + 1).padStart(2, "0")}.json`;
-    writeJsonFile(path.join(fixturesDir, fileName), fixture);
-    turnLogs.push({
-      turn: index + 1,
-      model: turn.model,
-      taskId: "0000000000000",
-      durationMs: result.durationMs,
-      recordedCalls: result.calls.length,
-    });
+
+    const turnLogs: unknown[] = [];
+    let taskId: string | undefined;
+
+    for (let index = 0; index < turns.length; index++) {
+      const turn = turns[index];
+      if (!turn) {
+        throw new Error(`Missing turn at index ${index}`);
+      }
+
+      console.log(
+        `[record]   turn ${index + 1}/${turns.length} [${turn.model}]`,
+      );
+      const result = await runTurn(
+        turn.prompt,
+        turn.model,
+        workspaceDir,
+        clineDir,
+        taskId,
+      );
+      taskId = result.taskId;
+
+      const lastCall = result.calls[result.calls.length - 1];
+      if (!lastCall) {
+        throw new Error(`No captured calls for turn ${index + 1}`);
+      }
+
+      const fixture = JSON.parse(
+        sanitize(JSON.stringify(buildFixture(lastCall)), workspaceDir),
+      );
+      const fileName = `turn-${String(index + 1).padStart(2, "0")}.json`;
+      writeJsonFile(path.join(fixturesDir, fileName), fixture);
+      turnLogs.push({
+        turn: index + 1,
+        model: turn.model,
+        taskId: "0000000000000",
+        durationMs: result.durationMs,
+        recordedCalls: result.calls.length,
+      });
+    }
+    writeJsonFile(path.join(logsDir, "turns.json"), turnLogs);
+  } finally {
+    rmSync(clineDir, { recursive: true, force: true });
   }
-  writeJsonFile(path.join(logsDir, "turns.json"), turnLogs);
 }
 
 async function main() {
-  for (const dep of [ENTRY, RUNNER]) {
+  for (const dep of [ENTRY, RUNNER, SCRIPT_CLINE_GLOBAL_STATE]) {
     if (!existsSync(dep)) {
       console.error(`Not found: ${dep}`);
       process.exit(1);
