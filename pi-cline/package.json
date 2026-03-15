@@ -12,10 +12,9 @@
   },
   "keywords": [
     "pi",
-    "cline",
-    "cline-cli",
-    "ai",
-    "llm"
+    "pi-coding-agent",
+    "pi-package",
+    "cline"
   ],
   "pi": {
     "extensions": [
