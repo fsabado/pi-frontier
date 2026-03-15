@@ -45,10 +45,8 @@ type ClineChatCompletionChoice = Omit<
   error?: ClineChunkError;
 };
 
-export interface ClineChatCompletionChunk extends Omit<
-  ChatCompletionChunk,
-  "choices"
-> {
+export interface ClineChatCompletionChunk
+  extends Omit<ChatCompletionChunk, "choices"> {
   error?: ClineChunkError;
   choices: ClineChatCompletionChoice[];
 }

@@ -1,9 +1,9 @@
 import type { ClineAuthApi } from "../../api/auth";
 import {
   CLINE_AUTH_CLIENT_TYPE,
+  CLINE_AUTH_PLATFORM,
   CLINE_CLIENT_VERSION,
   CLINE_CORE_VERSION,
-  CLINE_AUTH_PLATFORM,
 } from "../env";
 import { startCallbackServer } from "./callback-server";
 import { withTimeout } from "./utils";

@@ -3,9 +3,9 @@ import test from "node:test";
 import { ClineAuthApi } from "../../src/api/auth";
 import {
   CLINE_AUTH_CLIENT_TYPE,
+  CLINE_AUTH_PLATFORM,
   CLINE_CLIENT_VERSION,
   CLINE_CORE_VERSION,
-  CLINE_AUTH_PLATFORM,
 } from "../../src/lib/env";
 
 const expectedClineAuthHeaders = (): Record<string, string> => {
