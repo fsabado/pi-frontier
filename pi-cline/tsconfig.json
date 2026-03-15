@@ -7,8 +7,9 @@
     "moduleResolution": "bundler",
     "erasableSyntaxOnly": true,
     "noEmit": true,
+    "noPropertyAccessFromIndexSignature": false,
     "skipLibCheck": true
   },
-  "include": ["scripts", "src"],
+  "include": ["scripts", "src", "test"],
   "exclude": ["node_modules"]
 }
