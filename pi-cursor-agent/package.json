@@ -12,11 +12,11 @@
   },
   "keywords": [
     "pi",
+    "pi-coding-agent",
+    "pi-package",
     "cursor",
     "cursor-agent",
-    "cursor-cli",
-    "ai",
-    "llm"
+    "cursor-cli"
   ],
   "pi": {
     "extensions": [
