@@ -32,6 +32,9 @@
     "typecheck": "tsc",
     "record:fixtures": "node --experimental-strip-types scripts/record-cline-fixtures.ts"
   },
+  "dependencies": {
+    "openai": "^6.10.0"
+  },
   "devDependencies": {
     "@biomejs/biome": "^2.4.2",
     "@tsconfig/strictest": "^2.0.8",
