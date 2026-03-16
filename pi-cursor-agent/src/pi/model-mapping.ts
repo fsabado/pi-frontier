@@ -10,6 +10,10 @@ import type { ThinkingLevel } from "@mariozechner/pi-ai";
  * - Models not listed here pass through with their Cursor ID as-is.
  */
 const MODEL_MAP: Record<string, Record<string, string>> = {
+  // Composer
+  "composer-1": { default: "composer-1" },
+  "composer-1.5": { default: "composer-1.5" },
+
   // Claude — binary: off / thinking
   "claude-sonnet-4-5": {
     default: "claude-4.5-sonnet",
@@ -18,6 +22,14 @@ const MODEL_MAP: Record<string, Record<string, string>> = {
     medium: "claude-4.5-sonnet-thinking",
     high: "claude-4.5-sonnet-thinking",
     xhigh: "claude-4.5-sonnet-thinking",
+  },
+  "claude-sonnet-4-6": {
+    default: "claude-4.6-sonnet-medium",
+    minimal: "claude-4.6-sonnet-medium-thinking",
+    low: "claude-4.6-sonnet-medium-thinking",
+    medium: "claude-4.6-sonnet-medium-thinking",
+    high: "claude-4.6-sonnet-medium-thinking",
+    xhigh: "claude-4.6-sonnet-medium-thinking",
   },
   "claude-opus-4-5": {
     default: "claude-4.5-opus-high",
@@ -37,6 +49,12 @@ const MODEL_MAP: Record<string, Record<string, string>> = {
   },
 
   // GPT codex — multi-level
+  "gpt-5.1-codex-max": {
+    default: "gpt-5.1-codex-max",
+    high: "gpt-5.1-codex-max-high",
+    xhigh: "gpt-5.1-codex-max-high",
+  },
+  "gpt-5.1-codex-mini": { default: "gpt-5.1-codex-mini" },
   "gpt-5.2-codex": {
     default: "gpt-5.2-codex",
     minimal: "gpt-5.2-codex-low",
@@ -65,28 +83,48 @@ const MODEL_MAP: Record<string, Record<string, string>> = {
     high: "gpt-5.3-codex-high-fast",
     xhigh: "gpt-5.3-codex-xhigh-fast",
   },
+  "gpt-5.3-codex-spark": { default: "gpt-5.3-codex-spark-preview" },
 
   // GPT — limited levels
+  "gpt-5.1": {
+    default: "gpt-5.1",
+    minimal: "gpt-5.1-low",
+    low: "gpt-5.1-low",
+    high: "gpt-5.1-high",
+    xhigh: "gpt-5.1-high",
+  },
   "gpt-5.2": {
     default: "gpt-5.2",
     high: "gpt-5.2-high",
     xhigh: "gpt-5.2-high",
   },
-  "gpt-5.1": {
-    default: "gpt-5.1-high",
+  "gpt-5.4": {
+    default: "gpt-5.4-medium",
+    minimal: "gpt-5.4-low",
+    low: "gpt-5.4-low",
+    medium: "gpt-5.4-medium",
+    high: "gpt-5.4-high",
+    xhigh: "gpt-5.4-xhigh",
   },
-  "gpt-5.1-codex-max": {
-    default: "gpt-5.1-codex-max",
-    high: "gpt-5.1-codex-max-high",
-    xhigh: "gpt-5.1-codex-max-high",
+  "gpt-5.4-fast": {
+    default: "gpt-5.4-medium-fast",
+    minimal: "gpt-5.4-medium-fast",
+    low: "gpt-5.4-medium-fast",
+    medium: "gpt-5.4-medium-fast",
+    high: "gpt-5.4-high-fast",
+    xhigh: "gpt-5.4-xhigh-fast",
   },
 
-  // Gemini — no thinking variants in Cursor
+  // Gemini
   "gemini-3-pro-preview": { default: "gemini-3-pro" },
   "gemini-3-flash-preview": { default: "gemini-3-flash" },
+  "gemini-3.1-pro-preview": { default: "gemini-3.1-pro" },
 
   // xAI
   "grok-code-fast-1": { default: "grok-code-fast-1" },
+
+  // Moonshot
+  "kimi-k2.5": { default: "kimi-k2.5" },
 };
 
 // Derived indexes (built once at module load)
