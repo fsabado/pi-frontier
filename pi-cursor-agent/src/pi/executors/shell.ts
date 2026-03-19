@@ -1,6 +1,5 @@
 import type { ToolResultMessage } from "@mariozechner/pi-ai";
 import type { ExtensionContext } from "@mariozechner/pi-coding-agent";
-import { createBashTool } from "@mariozechner/pi-coding-agent";
 import type {
   ShellArgs,
   ShellResult,
@@ -12,15 +11,14 @@ import {
   ShellSuccess,
 } from "../../__generated__/agent/v1/shell_exec_pb";
 import type { Executor } from "../../vendor/agent-exec";
-import { resolvePath } from "../../vendor/local-exec";
 import {
   decodeToolCallId,
-  executePiTool,
   type PiToolContext,
 } from "../local-resource-provider/types";
+import { requestToolExecution } from "../tool-bridge";
 import { toolResultToText } from "../utils/tool-result";
 
-function buildShellResultFromToolResult(
+export function buildShellResultFromToolResult(
   args: { command: string; workingDirectory: string },
   result: ToolResultMessage,
 ): ShellResult {
@@ -58,7 +56,7 @@ function buildShellResultFromToolResult(
   });
 }
 
-function buildShellRejectedResult(
+export function buildShellRejectedResult(
   command: string,
   workingDirectory: string,
   reason: string,
@@ -98,35 +96,19 @@ export async function confirmIfDangerous(
 
 export class LocalShellExecutor implements Executor<ShellArgs, ShellResult> {
   private readonly ctx: PiToolContext;
-  private readonly bashByCwd = new Map<
-    string,
-    ReturnType<typeof createBashTool>
-  >();
 
   constructor(ctx: PiToolContext) {
     this.ctx = ctx;
-    this.bashByCwd.set(ctx.cwd, createBashTool(ctx.cwd));
-  }
-
-  getBashTool(workingDirectory?: string): ReturnType<typeof createBashTool> {
-    const resolved = resolvePath(
-      workingDirectory || this.ctx.cwd,
-      this.ctx.cwd,
-    );
-    const cached = this.bashByCwd.get(resolved);
-    if (cached) return cached;
-    const tool = createBashTool(resolved);
-    this.bashByCwd.set(resolved, tool);
-    return tool;
   }
 
   async execute(_ctx: unknown, args: ShellArgs): Promise<ShellResult> {
     const toolCallId = decodeToolCallId(args.toolCallId);
+    const workingDirectory = args.workingDirectory || this.ctx.cwd;
 
     if (!this.ctx.getActiveTools().has("bash")) {
       return buildShellRejectedResult(
         args.command,
-        args.workingDirectory,
+        workingDirectory,
         "Tool not available",
       );
     }
@@ -135,32 +117,29 @@ export class LocalShellExecutor implements Executor<ShellArgs, ShellResult> {
     if (!approved) {
       return buildShellRejectedResult(
         args.command,
-        args.workingDirectory,
+        workingDirectory,
         "Command rejected",
       );
     }
 
     const timeoutSeconds =
       args.timeout && args.timeout > 0 ? args.timeout : undefined;
-    const bashTool = this.getBashTool(args.workingDirectory || undefined);
 
-    const toolResult = await executePiTool(
-      this.ctx,
-      bashTool,
-      "bash",
-      toolCallId,
+    const piResult = await requestToolExecution(
+      this.ctx.getChannel?.() ?? null,
       {
-        command: args.command,
-        ...(timeoutSeconds != null ? { timeout: timeoutSeconds } : {}),
+        toolCallId,
+        piToolName: "bash",
+        piToolArgs: {
+          command: args.command,
+          ...(timeoutSeconds != null ? { timeout: timeoutSeconds } : {}),
+        },
       },
     );
 
     return buildShellResultFromToolResult(
-      {
-        command: args.command,
-        workingDirectory: args.workingDirectory || this.ctx.cwd,
-      },
-      toolResult,
+      { command: args.command, workingDirectory },
+      piResult,
     );
   }
 }

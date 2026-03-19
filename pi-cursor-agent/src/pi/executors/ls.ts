@@ -1,9 +1,7 @@
 import type { ToolResultMessage } from "@mariozechner/pi-ai";
-import { createLsTool } from "@mariozechner/pi-coding-agent";
 import type { LsArgs, LsResult } from "../../__generated__/agent/v1/ls_exec_pb";
 import {
   LsError,
-  LsRejected,
   LsResult as LsResultClass,
   LsSuccess,
 } from "../../__generated__/agent/v1/ls_exec_pb";
@@ -12,15 +10,45 @@ import {
   LsDirectoryTreeNode_File,
 } from "../../__generated__/agent/v1/selected_context_pb";
 import type { Executor } from "../../vendor/agent-exec";
+import { resolvePath } from "../../vendor/local-exec";
 import {
   decodeToolCallId,
-  executePiTool,
   type PiToolContext,
 } from "../local-resource-provider/types";
-import { toolResultToText } from "../utils/tool-result";
+import { requestToolExecution, shellQuote } from "../tool-bridge";
+import { toolResultToText, toolResultWasTruncated } from "../utils/tool-result";
 
-function buildLsResultFromToolResult(
+export function buildLsCommand(pathArg: string): string {
+  return `ls -A1p -- ${shellQuote(pathArg)}`;
+}
+
+function isLsNoticeLine(line: string): boolean {
+  return line.startsWith("[Showing lines ") || line.startsWith("[Showing last ");
+}
+
+function parseLsText(text: string): { dirs: string[]; files: string[] } {
+  const dirs: string[] = [];
+  const files: string[] = [];
+
+  for (const rawLine of text.split("\n")) {
+    const line = rawLine.endsWith("\r") ? rawLine.slice(0, -1) : rawLine;
+    if (!line || line === "(empty directory)" || isLsNoticeLine(line)) {
+      continue;
+    }
+
+    if (line.endsWith("/")) {
+      dirs.push(line.slice(0, -1));
+    } else {
+      files.push(line);
+    }
+  }
+
+  return { dirs, files };
+}
+
+export function buildLsResultFromToolResult(
   path: string,
+  cwd: string,
   result: ToolResultMessage,
 ): LsResult {
   const text = toolResultToText(result);
@@ -33,41 +61,31 @@ function buildLsResultFromToolResult(
     });
   }
 
-  const rootPath = path || ".";
-  const entries = text
-    .split("\n")
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0 && !line.startsWith("["));
+  const rootPath = resolvePath(path || ".", cwd);
+  const { dirs, files } = parseLsText(text);
+  const truncated = toolResultWasTruncated(result);
 
-  const childrenDirs: LsDirectoryTreeNode[] = [];
-  const childrenFiles: LsDirectoryTreeNode_File[] = [];
+  const childrenDirs = dirs.map(
+    (name) =>
+      new LsDirectoryTreeNode({
+        absPath: resolvePath(name, rootPath),
+        childrenDirs: [],
+        childrenFiles: [],
+        childrenWereProcessed: false,
+        fullSubtreeExtensionCounts: {},
+        numFiles: 0,
+      }),
+  );
 
-  for (const entry of entries) {
-    const name = entry.split(" (")[0];
-    if (name?.endsWith("/")) {
-      const dirName = name.slice(0, -1);
-      childrenDirs.push(
-        new LsDirectoryTreeNode({
-          absPath: `${rootPath.replace(/\/$/, "")}/${dirName}`,
-          childrenDirs: [],
-          childrenFiles: [],
-          childrenWereProcessed: false,
-          fullSubtreeExtensionCounts: {},
-          numFiles: 0,
-        }),
-      );
-    } else {
-      childrenFiles.push(
-        new LsDirectoryTreeNode_File(name ? { name } : undefined),
-      );
-    }
-  }
+  const childrenFiles = files.map(
+    (name) => new LsDirectoryTreeNode_File({ name }),
+  );
 
   const root = new LsDirectoryTreeNode({
     absPath: rootPath,
     childrenDirs,
     childrenFiles,
-    childrenWereProcessed: true,
+    childrenWereProcessed: !truncated,
     fullSubtreeExtensionCounts: {},
     numFiles: childrenFiles.length,
   });
@@ -80,35 +98,44 @@ function buildLsResultFromToolResult(
   });
 }
 
-function buildLsRejectedResult(path: string, reason: string): LsResult {
-  return new LsResultClass({
-    result: { case: "rejected", value: new LsRejected({ path, reason }) },
-  });
-}
-
 export class LocalLsExecutor implements Executor<LsArgs, LsResult> {
-  private readonly lsTool;
   private readonly ctx: PiToolContext;
 
   constructor(ctx: PiToolContext) {
     this.ctx = ctx;
-    this.lsTool = createLsTool(ctx.cwd);
   }
 
   async execute(_ctx: unknown, args: LsArgs): Promise<LsResult> {
     const toolCallId = decodeToolCallId(args.toolCallId);
+    const lsPath = args.path || ".";
 
-    if (!this.ctx.getActiveTools().has("ls")) {
-      return buildLsRejectedResult(args.path, "Tool not available");
+    if (!this.ctx.getActiveTools().has("bash")) {
+      return new LsResultClass({
+        result: {
+          case: "error",
+          value: new LsError({ path: lsPath, error: "Tool not available" }),
+        },
+      });
     }
 
-    const toolResult = await executePiTool(
-      this.ctx,
-      this.lsTool,
-      "ls",
-      toolCallId,
-      { path: args.path || "." },
+    const timeoutSeconds =
+      args.timeoutMs && args.timeoutMs > 0
+        ? Math.max(1, Math.ceil(args.timeoutMs / 1000))
+        : undefined;
+    const command = buildLsCommand(lsPath);
+
+    const piResult = await requestToolExecution(
+      this.ctx.getChannel?.() ?? null,
+      {
+        toolCallId,
+        piToolName: "bash",
+        piToolArgs: {
+          command,
+          ...(timeoutSeconds != null ? { timeout: timeoutSeconds } : {}),
+        },
+      },
     );
-    return buildLsResultFromToolResult(args.path, toolResult);
+
+    return buildLsResultFromToolResult(lsPath, this.ctx.cwd, piResult);
   }
 }

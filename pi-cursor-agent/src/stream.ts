@@ -5,6 +5,7 @@ import {
   type Context,
   createAssistantMessageEventStream,
   type Model,
+  type ToolCall as PiToolCall,
   type SimpleStreamOptions,
   type TextContent,
   type ThinkingContent,
@@ -26,12 +27,19 @@ import {
   persistAgentStore,
 } from "./pi/agent-store";
 import {
+  type ContentEvent,
+  deleteLiveSession,
+  getLiveSession,
+  LiveEventChannel,
+  setLiveSession,
+} from "./pi/agent-stream-hook";
+import {
   LocalResourceProvider,
   type PiToolContext,
-  type ToolExecEvent,
 } from "./pi/local-resource-provider";
 import { toCursorId } from "./pi/model-mapping";
 import { buildRunRequest, getContextTools } from "./pi/request-builder";
+import { rejectAllPending, type ToolExecRequest } from "./pi/tool-bridge";
 import {
   AgentConnectClient,
   type CheckpointHandler,
@@ -42,6 +50,8 @@ import type {
   CoreInteractionResponse,
   CoreInteractionUpdate,
 } from "./vendor/agent-core";
+
+// ─── Helpers ────────────────────────────────────────────────────────
 
 function createCheckpointHandler(
   handler: (checkpoint: ConversationStateStructure) => void,
@@ -57,7 +67,7 @@ function createCheckpointHandler(
   };
 }
 
-const QUERY_REJECTION_REASON = "Not supported by pi-cursor-agent";
+const QUERY_REJECTION_REASON = "Not supported";
 
 function createInteractionListenerAdapter(
   onUpdate: (update: CoreInteractionUpdate) => void,
@@ -69,7 +79,6 @@ function createInteractionListenerAdapter(
     ): Promise<void> {
       onUpdate(update);
     },
-
     async query(
       _ctx: unknown,
       query: CoreInteractionQuery,
@@ -111,29 +120,191 @@ function createInteractionListenerAdapter(
   };
 }
 
-type ToolExecStreamEvent =
-  | {
-      type: "tool_exec_start";
-      toolCallId: string;
-      toolName: string;
-      args: Record<string, unknown>;
-    }
-  | {
-      type: "tool_exec_end";
-      toolCallId: string;
-      toolName: string;
-      result: { content: unknown; details: unknown };
-      isError: boolean;
-    };
-
-type StreamWithToolExecEvents = AssistantMessageEventStream & {
-  push(event: ToolExecStreamEvent): void;
-};
-
 type CursorAssistantMessage = AssistantMessage & {
   duration?: number;
   ttft?: number;
 };
+
+// ─── Content streaming helpers ──────────────────────────────────────
+
+interface LiveContentState {
+  currentText: TextContent | null;
+  currentThinking: ThinkingContent | null;
+}
+
+function finalizeText(
+  state: LiveContentState,
+  output: CursorAssistantMessage,
+  stream: AssistantMessageEventStream,
+): void {
+  if (!state.currentText) return;
+  stream.push({
+    type: "text_end",
+    contentIndex: output.content.indexOf(state.currentText),
+    content: state.currentText.text,
+    partial: output,
+  });
+  state.currentText = null;
+}
+
+function finalizeThinking(
+  state: LiveContentState,
+  output: CursorAssistantMessage,
+  stream: AssistantMessageEventStream,
+): void {
+  if (!state.currentThinking) return;
+  stream.push({
+    type: "thinking_end",
+    contentIndex: output.content.indexOf(state.currentThinking),
+    content: state.currentThinking.thinking,
+    partial: output,
+  });
+  state.currentThinking = null;
+}
+
+function pushContentEvent(
+  event: ContentEvent,
+  state: LiveContentState,
+  output: CursorAssistantMessage,
+  stream: AssistantMessageEventStream,
+): void {
+  switch (event.kind) {
+    case "text-delta": {
+      finalizeThinking(state, output, stream);
+      if (!state.currentText) {
+        state.currentText = { type: "text", text: "" };
+        output.content.push(state.currentText);
+        stream.push({
+          type: "text_start",
+          contentIndex: output.content.length - 1,
+          partial: output,
+        });
+      }
+      state.currentText.text += event.text;
+      stream.push({
+        type: "text_delta",
+        contentIndex: output.content.indexOf(state.currentText),
+        delta: event.text,
+        partial: output,
+      });
+      break;
+    }
+    case "thinking-delta": {
+      finalizeText(state, output, stream);
+      if (!state.currentThinking) {
+        state.currentThinking = { type: "thinking", thinking: "" };
+        output.content.push(state.currentThinking);
+        stream.push({
+          type: "thinking_start",
+          contentIndex: output.content.length - 1,
+          partial: output,
+        });
+      }
+      state.currentThinking.thinking += event.text;
+      stream.push({
+        type: "thinking_delta",
+        contentIndex: output.content.indexOf(state.currentThinking),
+        delta: event.text,
+        partial: output,
+      });
+      break;
+    }
+    case "thinking-completed": {
+      finalizeThinking(state, output, stream);
+      break;
+    }
+  }
+}
+
+function finalizeAllContent(
+  state: LiveContentState,
+  output: CursorAssistantMessage,
+  stream: AssistantMessageEventStream,
+): void {
+  finalizeText(state, output, stream);
+  finalizeThinking(state, output, stream);
+}
+
+// ─── Consume channel ────────────────────────────────────────────────
+
+/** Stream channel events until a tool boundary or completion. */
+async function consumeUntilBoundary(
+  channel: LiveEventChannel,
+  output: CursorAssistantMessage,
+  stream: AssistantMessageEventStream,
+  usageState: { sawTokenDelta: boolean },
+  setFirstTokenTime: () => void,
+): Promise<{
+  reason: "toolUse" | "stop";
+  tools: ToolExecRequest[];
+}> {
+  const contentState: LiveContentState = {
+    currentText: null,
+    currentThinking: null,
+  };
+
+  while (true) {
+    const event = await channel.next();
+
+    if (event === null) {
+      finalizeAllContent(contentState, output, stream);
+      return { reason: "stop", tools: [] };
+    }
+
+    switch (event.kind) {
+      case "content": {
+        setFirstTokenTime();
+        pushContentEvent(event.data, contentState, output, stream);
+        break;
+      }
+
+      case "tool-exec-request": {
+        // Break immediately so pi can run the requested tool.
+        finalizeAllContent(contentState, output, stream);
+        return { reason: "toolUse", tools: [event.request] };
+      }
+
+      case "token-delta": {
+        usageState.sawTokenDelta = true;
+        output.usage.output += event.tokens;
+        output.usage.totalTokens = output.usage.input + output.usage.output;
+        break;
+      }
+
+      case "cursor-done": {
+        finalizeAllContent(contentState, output, stream);
+        return { reason: "stop", tools: [] };
+      }
+    }
+  }
+}
+
+/** Emit pi toolCall blocks for pending exec requests. */
+function emitToolCalls(
+  tools: ToolExecRequest[],
+  output: CursorAssistantMessage,
+  stream: AssistantMessageEventStream,
+): void {
+  for (const request of tools) {
+    const block: PiToolCall = {
+      type: "toolCall",
+      id: request.toolCallId,
+      name: request.piToolName,
+      arguments: request.piToolArgs,
+    };
+    output.content.push(block);
+    const idx = output.content.length - 1;
+    stream.push({ type: "toolcall_start", contentIndex: idx, partial: output });
+    stream.push({
+      type: "toolcall_end",
+      contentIndex: idx,
+      toolCall: block,
+      partial: output,
+    });
+  }
+}
+
+// ─── Main stream function ───────────────────────────────────────────
 
 export function streamCursorAgent(
   pi: ExtensionAPI,
@@ -143,11 +314,9 @@ export function streamCursorAgent(
   options?: SimpleStreamOptions,
 ): AssistantMessageEventStream {
   const stream = createAssistantMessageEventStream();
-  const streamWithToolExecEvents = stream as StreamWithToolExecEvents;
 
   (async () => {
-    const startTime = Date.now();
-    let firstTokenTime: number | undefined;
+    const sessionId = options?.sessionId ?? "default";
 
     const output: CursorAssistantMessage = {
       role: "assistant",
@@ -167,216 +336,155 @@ export function streamCursorAgent(
       timestamp: Date.now(),
     };
 
-    const sessionId = options?.sessionId ?? "default";
-
-    let lastFlushedRootBlobId: string | undefined;
-    const flushSessionState = async () => {
-      const snapshot = await persistAgentStore(sessionId);
-      if (!snapshot || snapshot.latestRootBlobId === lastFlushedRootBlobId) {
-        return;
-      }
-      lastFlushedRootBlobId = snapshot.latestRootBlobId;
-      pi.appendEntry(CURSOR_STATE_ENTRY_TYPE, snapshot);
-    };
-
     try {
-      const apiKey = options?.apiKey;
-      if (!apiKey) {
-        throw new Error(
-          "Cursor API key (access token) is required. Run /login cursor or set CURSOR_ACCESS_TOKEN.",
+      // Reuse the live session on continuation turns.
+      let session = getLiveSession(sessionId);
+
+      if (!session) {
+        // First turn: start Cursor in the background.
+        const apiKey = options?.apiKey;
+        if (!apiKey) {
+          throw new Error(
+            "Cursor API key (access token) is required. Run /login cursor or set CURSOR_ACCESS_TOKEN.",
+          );
+        }
+
+        const agentStore = await ensureAgentStore(sessionId);
+        const cwd = getCtx()?.cwd ?? process.cwd();
+        const requestContextTools = getContextTools(context);
+
+        const channel = new LiveEventChannel();
+
+        const piToolCtx: PiToolContext = {
+          cwd,
+          ...(options?.signal ? { signal: options.signal } : {}),
+          getActiveTools: () => new Set(pi.getActiveTools()),
+          getCtx,
+          getChannel: () => channel,
+        };
+
+        const resources = new LocalResourceProvider({
+          ctx: piToolCtx,
+          requestContextTools,
+        });
+
+        const blobStore = agentStore.getBlobStore();
+        const cursorModelId = toCursorId(model.id, options?.reasoning);
+        const { initialRequest, conversationState } = buildRunRequest({
+          model: { ...model, id: cursorModelId },
+          context,
+          conversationId: agentStore.getId(),
+          blobStore,
+          conversationState: agentStore.getConversationStateStructure(),
+          mcpToolDefinitions: requestContextTools,
+        });
+        agentStore.conversationStateStructure = conversationState;
+
+        let lastFlushedRootBlobId: string | undefined;
+        const flushSessionState = async () => {
+          const snapshot = await persistAgentStore(sessionId);
+          if (!snapshot || snapshot.latestRootBlobId === lastFlushedRootBlobId)
+            return;
+          lastFlushedRootBlobId = snapshot.latestRootBlobId;
+          pi.appendEntry(CURSOR_STATE_ENTRY_TYPE, snapshot);
+        };
+
+        // Forward Cursor interaction updates to the live channel.
+        const handleInteractionUpdate = (update: CoreInteractionUpdate) => {
+          switch (update.type) {
+            case "text-delta":
+              channel.push({
+                kind: "content",
+                data: { kind: "text-delta", text: update.text },
+              });
+              return;
+            case "thinking-delta":
+              channel.push({
+                kind: "content",
+                data: { kind: "thinking-delta", text: update.text },
+              });
+              return;
+            case "thinking-completed":
+              channel.push({
+                kind: "content",
+                data: { kind: "thinking-completed", text: "" },
+              });
+              return;
+            case "token-delta":
+              channel.push({ kind: "token-delta", tokens: update.tokens });
+              return;
+            default:
+              return;
+          }
+        };
+
+        const baseUrl = model.baseUrl || CURSOR_API_URL;
+        const agentService = new AgentService(baseUrl, {
+          accessToken: apiKey,
+          clientVersion: CURSOR_CLIENT_VERSION,
+          clientType: "cli",
+        });
+        const connectClient = new AgentConnectClient(agentService.rpcClient);
+        const interactionListener = createInteractionListenerAdapter(
+          handleInteractionUpdate,
         );
+        const checkpointHandler = createCheckpointHandler(
+          (checkpoint: ConversationStateStructure) => {
+            void agentStore.handleCheckpoint(null, checkpoint);
+          },
+        );
+        checkpointHandler.getLatestCheckpoint = () =>
+          agentStore.getConversationStateStructure();
+
+        const runOptions: Parameters<typeof connectClient.run>[1] = {
+          interactionListener,
+          resources,
+          blobStore,
+          checkpointHandler,
+        };
+        if (options?.signal) runOptions.signal = options.signal;
+
+        // Start Cursor in the background.
+        const cursorRunPromise = connectClient
+          .run(initialRequest, runOptions)
+          .then(() => channel.push({ kind: "cursor-done" }))
+          .catch(() => channel.push({ kind: "cursor-done" }))
+          .finally(() => channel.markDone());
+
+        session = {
+          channel,
+          cursorRunPromise,
+          flushSessionState,
+          startTime: Date.now(),
+        };
+        setLiveSession(sessionId, session);
       }
 
-      const agentStore = await ensureAgentStore(sessionId);
-      const cwd = getCtx()?.cwd ?? process.cwd();
-      const requestContextTools = getContextTools(context);
-
-      let onToolExec: ((event: ToolExecEvent) => void) | undefined;
-
-      const piToolCtx: PiToolContext = {
-        cwd,
-        ...(options?.signal ? { signal: options.signal } : {}),
-        getActiveTools: () => new Set(pi.getActiveTools()),
-        getCtx,
-        onToolExec: (event) => onToolExec?.(event),
-      };
-
-      const resources = new LocalResourceProvider({
-        ctx: piToolCtx,
-        requestContextTools,
-      });
-
-      const blobStore = agentStore.getBlobStore();
-      const cursorModelId = toCursorId(model.id, options?.reasoning);
-      const { initialRequest, conversationState } = buildRunRequest({
-        model: { ...model, id: cursorModelId },
-        context,
-        conversationId: agentStore.getId(),
-        blobStore,
-        conversationState: agentStore.getConversationStateStructure(),
-        mcpToolDefinitions: requestContextTools,
-      });
-      agentStore.conversationStateStructure = conversationState;
+      // Consume until a tool boundary or completion.
+      const usageState = { sawTokenDelta: false };
+      let firstTokenTimeCaptured = false;
 
       stream.push({ type: "start", partial: output });
 
-      let currentTextBlock: TextContent | null = null;
-      let currentThinkingBlock: ThinkingContent | null = null;
-      const usageState = { sawTokenDelta: false };
-
-      const finalizeTextBlock = () => {
-        if (!currentTextBlock) return;
-        stream.push({
-          type: "text_end",
-          contentIndex: output.content.indexOf(currentTextBlock),
-          content: currentTextBlock.text,
-          partial: output,
-        });
-        currentTextBlock = null;
-      };
-
-      const finalizeThinkingBlock = () => {
-        if (!currentThinkingBlock) return;
-        stream.push({
-          type: "thinking_end",
-          contentIndex: output.content.indexOf(currentThinkingBlock),
-          content: currentThinkingBlock.thinking,
-          partial: output,
-        });
-        currentThinkingBlock = null;
-      };
-
-      onToolExec = (event: ToolExecEvent) => {
-        if (event.type === "start") {
-          finalizeTextBlock();
-          finalizeThinkingBlock();
-          streamWithToolExecEvents.push({
-            type: "tool_exec_start",
-            toolCallId: event.toolCallId,
-            toolName: event.toolName,
-            args: event.args,
-          });
-        } else {
-          streamWithToolExecEvents.push({
-            type: "tool_exec_end",
-            toolCallId: event.toolCallId,
-            toolName: event.toolName,
-            result: {
-              content: event.result.content,
-              details: event.result.details,
-            },
-            isError: event.result.isError,
-          });
-        }
-      };
-
-      const handleInteractionUpdate = (update: CoreInteractionUpdate) => {
-        switch (update.type) {
-          case "text-delta": {
-            if (!firstTokenTime) firstTokenTime = Date.now();
-            finalizeThinkingBlock();
-            const delta = update.text;
-            if (!currentTextBlock) {
-              currentTextBlock = { type: "text", text: "" };
-              output.content.push(currentTextBlock);
-              stream.push({
-                type: "text_start",
-                contentIndex: output.content.length - 1,
-                partial: output,
-              });
+      const result = await consumeUntilBoundary(
+        session.channel,
+        output,
+        stream,
+        usageState,
+        () => {
+          if (!firstTokenTimeCaptured) {
+            firstTokenTimeCaptured = true;
+            if (!session?.firstTokenTime) {
+              session.firstTokenTime = Date.now();
             }
-            currentTextBlock.text += delta;
-            stream.push({
-              type: "text_delta",
-              contentIndex: output.content.indexOf(currentTextBlock),
-              delta,
-              partial: output,
-            });
-            return;
-          }
-
-          case "thinking-delta": {
-            if (!firstTokenTime) firstTokenTime = Date.now();
-            finalizeTextBlock();
-            const delta = update.text;
-            if (!currentThinkingBlock) {
-              currentThinkingBlock = { type: "thinking", thinking: "" };
-              output.content.push(currentThinkingBlock);
-              stream.push({
-                type: "thinking_start",
-                contentIndex: output.content.length - 1,
-                partial: output,
-              });
-            }
-            currentThinkingBlock.thinking += delta;
-            stream.push({
-              type: "thinking_delta",
-              contentIndex: output.content.indexOf(currentThinkingBlock),
-              delta,
-              partial: output,
-            });
-            return;
-          }
-
-          case "thinking-completed": {
-            finalizeThinkingBlock();
-            return;
-          }
-
-          case "turn-ended": {
-            output.stopReason = "stop";
-            return;
-          }
-
-          case "token-delta": {
-            usageState.sawTokenDelta = true;
-            output.usage.output += update.tokens;
-            output.usage.totalTokens = output.usage.input + output.usage.output;
-            return;
-          }
-        }
-      };
-
-      const baseUrl = model.baseUrl || CURSOR_API_URL;
-      const agentService = new AgentService(baseUrl, {
-        accessToken: apiKey,
-        clientVersion: CURSOR_CLIENT_VERSION,
-        clientType: "cli",
-      });
-
-      const connectClient = new AgentConnectClient(agentService.rpcClient);
-
-      const interactionListener = createInteractionListenerAdapter(
-        handleInteractionUpdate,
-      );
-
-      const checkpointHandler = createCheckpointHandler(
-        (checkpoint: ConversationStateStructure) => {
-          void agentStore.handleCheckpoint(null, checkpoint);
-          if (usageState.sawTokenDelta) return;
-          const usedTokens = checkpoint.tokenDetails?.usedTokens ?? 0;
-          if (usedTokens > 0 && output.usage.output !== usedTokens) {
-            output.usage.output = usedTokens;
-            output.usage.totalTokens = output.usage.input + output.usage.output;
           }
         },
       );
-      checkpointHandler.getLatestCheckpoint = () =>
-        agentStore.getConversationStateStructure();
 
-      const runOptions: Parameters<typeof connectClient.run>[1] = {
-        interactionListener,
-        resources,
-        blobStore,
-        checkpointHandler,
-      };
-      if (options?.signal) runOptions.signal = options.signal;
-
-      await connectClient.run(initialRequest, runOptions);
-
-      finalizeTextBlock();
-      finalizeThinkingBlock();
-
+      output.duration = Date.now() - session.startTime;
+      if (session.firstTokenTime) {
+        output.ttft = session.firstTokenTime - session.startTime;
+      }
       output.usage.cost = {
         input: 0,
         output: 0,
@@ -384,34 +492,39 @@ export function streamCursorAgent(
         cacheWrite: 0,
         total: 0,
       };
-      output.duration = Date.now() - startTime;
-      if (firstTokenTime) {
-        output.ttft = firstTokenTime - startTime;
-      }
 
-      try {
-        await flushSessionState();
-      } catch {
-        // ignore persistence errors
+      if (result.reason === "toolUse" && result.tools.length > 0) {
+        // Let pi execute the requested tools natively.
+        emitToolCalls(result.tools, output, stream);
+        output.stopReason = "toolUse";
+        stream.push({
+          type: "done",
+          reason: "toolUse",
+          message: { ...output },
+        });
+      } else {
+        // Finalize the session.
+        output.stopReason = "stop";
+        try {
+          await session.flushSessionState();
+        } catch {
+          // ignore
+        }
+        deleteLiveSession(sessionId);
+        await session.cursorRunPromise.catch(() => {});
+        stream.push({ type: "done", reason: "stop", message: output });
       }
-      stream.push({ type: "done", reason: "stop", message: output });
       stream.end();
     } catch (error) {
       output.stopReason = options?.signal?.aborted ? "aborted" : "error";
       output.errorMessage =
         error instanceof Error ? error.message : String(error);
-      output.duration = Date.now() - startTime;
-      if (firstTokenTime) output.ttft = firstTokenTime - startTime;
-      const errorReason = output.stopReason === "aborted" ? "aborted" : "error";
-      try {
-        await flushSessionState();
-      } catch {
-        // ignore persistence errors
-      }
+      deleteLiveSession(sessionId);
+      rejectAllPending(`Stream error: ${output.errorMessage}`);
       stream.push({
         type: "error",
-        reason: errorReason,
-        error: output,
+        reason: output.stopReason === "aborted" ? "aborted" : "error",
+        error: { ...output },
       });
       stream.end();
     }

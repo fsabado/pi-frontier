@@ -74,10 +74,7 @@ export class LocalResourceProvider extends RegistryResourceAccessor {
     // shell (unary + stream)
     const shellExecutor = new LocalShellExecutor(ctx);
     this.register(shellResource, shellExecutor);
-    this.register(
-      shellStreamResource,
-      new LocalShellStreamExecutor(ctx, shellExecutor),
-    );
+    this.register(shellStreamResource, new LocalShellStreamExecutor(ctx));
 
     // grep, ls
     this.register(grepResource, new LocalGrepExecutor(ctx));

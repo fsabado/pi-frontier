@@ -162,7 +162,7 @@ const overrides = [
   },
   {
     id: /^grok-code-fast-1$/,
-    reasoning: true,
+    reasoning: false,
     input: ["text"],
     cost: { input: 0.2, output: 1.5, cacheRead: 0.02, cacheWrite: 0 },
     contextWindow: 256000,

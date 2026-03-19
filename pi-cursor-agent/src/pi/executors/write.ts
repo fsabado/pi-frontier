@@ -1,8 +1,4 @@
-import fs from "node:fs/promises";
-import path from "node:path";
-import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 import type { ToolResultMessage } from "@mariozechner/pi-ai";
-import { createWriteTool } from "@mariozechner/pi-coding-agent";
 import type {
   WriteArgs,
   WriteResult,
@@ -14,14 +10,11 @@ import {
   WriteSuccess,
 } from "../../__generated__/agent/v1/write_exec_pb";
 import type { Executor } from "../../vendor/agent-exec";
-import { resolvePath } from "../../vendor/local-exec";
 import {
-  buildErrorResult,
-  createToolResultMessage,
   decodeToolCallId,
-  executePiTool,
   type PiToolContext,
 } from "../local-resource-provider/types";
+import { requestToolExecution, shellQuote } from "../tool-bridge";
 import { toolResultToText } from "../utils/tool-result";
 
 function buildWriteResultFromToolResult(
@@ -56,9 +49,7 @@ function buildWriteResultFromToolResult(
         path: args.path,
         linesCreated,
         fileSize,
-        ...(args.returnFileContentAfterWrite
-          ? { fileContentAfterWrite: fileText }
-          : {}),
+        ...(args.returnFileContentAfterWrite ? { fullFileContent: text } : {}),
       }),
     },
   });
@@ -70,126 +61,106 @@ function buildWriteRejectedResult(path: string, reason: string): WriteResult {
   });
 }
 
+/**
+ * Determine whether the write should be treated as binary.
+ * Binary when fileBytes is present and fileText is absent or empty.
+ */
+function isBinaryWrite(args: WriteArgs): boolean {
+  return (
+    args.fileBytes != null &&
+    args.fileBytes.length > 0 &&
+    (!args.fileText || args.fileText.length === 0)
+  );
+}
+
+/**
+ * Build a bash command that decodes base64 stdin into the target path.
+ * Uses a heredoc so the payload is not subject to ARG_MAX limits.
+ */
+function buildBase64WriteCommand(path: string, base64: string): string {
+  return [
+    `mkdir -p "$(dirname ${shellQuote(path)})"`,
+    `base64 -d > ${shellQuote(path)} <<'__PI_BIN_EOF__'`,
+    base64,
+    "__PI_BIN_EOF__",
+  ].join(" && \\\n");
+}
+
 export class LocalWriteExecutor implements Executor<WriteArgs, WriteResult> {
-  private readonly writeTool;
   private readonly ctx: PiToolContext;
 
   constructor(ctx: PiToolContext) {
     this.ctx = ctx;
-    this.writeTool = createWriteTool(ctx.cwd);
   }
 
   async execute(_ctx: unknown, args: WriteArgs): Promise<WriteResult> {
     const toolCallId = decodeToolCallId(args.toolCallId);
 
+    if (isBinaryWrite(args)) {
+      return this.executeBinaryWrite(toolCallId, args);
+    }
+
+    return this.executeTextWrite(toolCallId, args);
+  }
+
+  /** Text write via pi's native `write` tool. */
+  private async executeTextWrite(
+    toolCallId: string,
+    args: WriteArgs,
+  ): Promise<WriteResult> {
     if (!this.ctx.getActiveTools().has("write")) {
       return buildWriteRejectedResult(args.path, "Tool not available");
     }
 
-    if (
-      args.fileBytes &&
-      args.fileBytes.length > 0 &&
-      (!args.fileText || args.fileText.length === 0)
-    ) {
-      const toolResult = await this.executeBinaryWrite(
-        { path: args.path, fileBytes: args.fileBytes },
+    const content = args.fileText ?? "";
+
+    const piResult = await requestToolExecution(
+      this.ctx.getChannel?.() ?? null,
+      {
         toolCallId,
-      );
-      return buildWriteResultFromToolResult(
-        {
-          path: args.path,
-          fileBytes: args.fileBytes,
-          returnFileContentAfterWrite: args.returnFileContentAfterWrite,
-        },
-        toolResult,
-      );
-    }
-
-    const fileText =
-      args.fileText ??
-      new TextDecoder().decode(args.fileBytes ?? new Uint8Array());
-
-    const toolResult = await executePiTool(
-      this.ctx,
-      this.writeTool,
-      "write",
-      toolCallId,
-      { path: args.path, content: fileText },
+        piToolName: "write",
+        piToolArgs: { path: args.path, content },
+      },
     );
+
     return buildWriteResultFromToolResult(
       {
         path: args.path,
-        fileText,
+        fileText: args.fileText,
         returnFileContentAfterWrite: args.returnFileContentAfterWrite,
       },
-      toolResult,
+      piResult,
     );
   }
 
+  /** Binary write via `bash` base64 decoding. */
   private async executeBinaryWrite(
-    writeArgs: { path: string; fileBytes: Uint8Array },
     toolCallId: string,
-  ) {
-    const toolArgs = {
-      path: writeArgs.path,
-      binary: true,
-      size: writeArgs.fileBytes.length,
-    };
-
-    const extCtx = this.ctx.getCtx();
-    if (extCtx?.hasUI) {
-      extCtx.ui.setWorkingMessage("Cursor: write (binary)");
-      extCtx.ui.setStatus("cursor-agent", `write: ${writeArgs.path}`);
-    }
-    this.ctx.onToolExec?.({
-      type: "start",
-      toolCallId,
-      toolName: "write",
-      args: toolArgs,
-    });
-
-    const absolutePath = resolvePath(writeArgs.path, this.ctx.cwd);
-    let result: AgentToolResult<unknown>;
-    let isError = false;
-
-    try {
-      await fs.mkdir(path.dirname(absolutePath), { recursive: true });
-      await fs.writeFile(absolutePath, Buffer.from(writeArgs.fileBytes));
-      result = {
-        content: [
-          {
-            type: "text",
-            text: `Successfully wrote ${writeArgs.fileBytes.length} bytes to ${writeArgs.path}`,
-          },
-        ],
-        details: undefined,
-      };
-    } catch (error) {
-      isError = true;
-      result = buildErrorResult(
-        error instanceof Error ? error.message : String(error),
-      );
+    args: WriteArgs,
+  ): Promise<WriteResult> {
+    if (!this.ctx.getActiveTools().has("bash")) {
+      return buildWriteRejectedResult(args.path, "Tool not available");
     }
 
-    const toolResult = createToolResultMessage(
-      toolCallId,
-      "write",
-      result,
-      isError,
+    const base64 = Buffer.from(args.fileBytes!).toString("base64");
+    const command = buildBase64WriteCommand(args.path, base64);
+
+    const piResult = await requestToolExecution(
+      this.ctx.getChannel?.() ?? null,
+      {
+        toolCallId,
+        piToolName: "bash",
+        piToolArgs: { command },
+      },
     );
-    this.ctx.onToolExec?.({
-      type: "end",
-      toolCallId,
-      toolName: "write",
-      args: toolArgs,
-      result: toolResult,
-    });
 
-    if (extCtx?.hasUI) {
-      extCtx.ui.setWorkingMessage();
-      extCtx.ui.setStatus("cursor-agent", undefined);
-    }
-
-    return toolResult;
+    return buildWriteResultFromToolResult(
+      {
+        path: args.path,
+        fileBytes: args.fileBytes,
+        returnFileContentAfterWrite: args.returnFileContentAfterWrite,
+      },
+      piResult,
+    );
   }
 }

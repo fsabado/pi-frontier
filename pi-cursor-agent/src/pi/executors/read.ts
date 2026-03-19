@@ -1,5 +1,4 @@
 import type { ToolResultMessage } from "@mariozechner/pi-ai";
-import { createReadTool } from "@mariozechner/pi-coding-agent";
 import type {
   ReadArgs,
   ReadResult,
@@ -11,14 +10,12 @@ import {
   ReadSuccess,
 } from "../../__generated__/agent/v1/read_exec_pb";
 import type { Executor } from "../../vendor/agent-exec";
-import {
-  decodeToolCallId,
-  executePiTool,
-  type PiToolContext,
-} from "../local-resource-provider/types";
+import type { PiToolContext } from "../local-resource-provider/types";
+import { decodeToolCallId } from "../local-resource-provider/types";
+import { requestToolExecution } from "../tool-bridge";
 import { toolResultToText, toolResultWasTruncated } from "../utils/tool-result";
 
-function buildReadResultFromToolResult(
+export function buildReadResultFromToolResult(
   path: string,
   result: ToolResultMessage,
 ): ReadResult {
@@ -53,12 +50,10 @@ function buildReadRejectedResult(path: string, reason: string): ReadResult {
 }
 
 export class LocalReadExecutor implements Executor<ReadArgs, ReadResult> {
-  private readonly readTool;
   private readonly ctx: PiToolContext;
 
   constructor(ctx: PiToolContext) {
     this.ctx = ctx;
-    this.readTool = createReadTool(ctx.cwd);
   }
 
   async execute(_ctx: unknown, args: ReadArgs): Promise<ReadResult> {
@@ -68,13 +63,15 @@ export class LocalReadExecutor implements Executor<ReadArgs, ReadResult> {
       return buildReadRejectedResult(args.path, "Tool not available");
     }
 
-    const toolResult = await executePiTool(
-      this.ctx,
-      this.readTool,
-      "read",
-      toolCallId,
-      { path: args.path },
+    const piResult = await requestToolExecution(
+      this.ctx.getChannel?.() ?? null,
+      {
+        toolCallId,
+        piToolName: "read",
+        piToolArgs: { path: args.path },
+      },
     );
-    return buildReadResultFromToolResult(args.path, toolResult);
+
+    return buildReadResultFromToolResult(args.path, piResult);
   }
 }

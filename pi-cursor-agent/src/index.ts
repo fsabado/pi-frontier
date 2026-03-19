@@ -17,6 +17,7 @@ import {
 } from "./lib/env";
 import { restoreAgentStoreFromBranch } from "./pi/agent-store";
 import { getCachedPiModels, updateCachedPiModelsIfStale } from "./pi/model";
+import { resolveToolResult } from "./pi/tool-bridge";
 import { streamCursorAgent } from "./stream";
 
 const auth = new AuthManager(new Auth(CURSOR_API_URL), CURSOR_WEBSITE_URL);
@@ -103,6 +104,18 @@ export default (pi: ExtensionAPI) => {
 
   pi.on("session_tree", async (_, ctx) => {
     await refreshBranchState(ctx);
+  });
+
+  pi.on("tool_execution_end", async (event) => {
+    resolveToolResult({
+      role: "toolResult",
+      toolCallId: event.toolCallId,
+      toolName: event.toolName,
+      content: event.result?.content ?? [],
+      details: event.result?.details,
+      isError: event.isError,
+      timestamp: Date.now(),
+    });
   });
 
   pi.registerProvider("cursor-agent", {

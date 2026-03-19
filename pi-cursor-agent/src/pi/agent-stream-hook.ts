@@ -1,0 +1,75 @@
+/**
+ * Shared live channel/session state for Cursor streaming.
+ *
+ * Cursor updates are pushed into a LiveEventChannel and consumed across
+ * continuation turns.
+ */
+import type { ToolExecRequest } from "./tool-bridge";
+
+// ─── Live event channel ─────────────────────────────────────────────
+
+export type ChannelEvent =
+  | { kind: "content"; data: ContentEvent }
+  | { kind: "tool-exec-request"; request: ToolExecRequest }
+  | { kind: "token-delta"; tokens: number }
+  | { kind: "cursor-done" };
+
+export interface ContentEvent {
+  kind: "thinking-delta" | "text-delta" | "thinking-completed";
+  text: string;
+}
+
+export class LiveEventChannel {
+  private events: ChannelEvent[] = [];
+  private cursor = 0;
+  private done = false;
+  private waiters: Array<() => void> = [];
+
+  push(event: ChannelEvent): void {
+    this.events.push(event);
+    this.notifyWaiters();
+  }
+
+  markDone(): void {
+    this.done = true;
+    this.notifyWaiters();
+  }
+
+  async next(): Promise<ChannelEvent | null> {
+    while (this.cursor >= this.events.length) {
+      if (this.done) return null;
+      await new Promise<void>((r) => this.waiters.push(r));
+    }
+    return this.events[this.cursor++] || null;
+  }
+
+  private notifyWaiters(): void {
+    const w = this.waiters;
+    this.waiters = [];
+    for (const resolve of w) resolve();
+  }
+}
+
+// ─── Live session state ─────────────────────────────────────────────
+
+export interface LiveSession {
+  channel: LiveEventChannel;
+  cursorRunPromise: Promise<void>;
+  flushSessionState: () => Promise<void>;
+  startTime: number;
+  firstTokenTime?: number;
+}
+
+const liveSessions = new Map<string, LiveSession>();
+
+export function setLiveSession(sessionId: string, session: LiveSession): void {
+  liveSessions.set(sessionId, session);
+}
+
+export function getLiveSession(sessionId: string): LiveSession | undefined {
+  return liveSessions.get(sessionId);
+}
+
+export function deleteLiveSession(sessionId: string): void {
+  liveSessions.delete(sessionId);
+}

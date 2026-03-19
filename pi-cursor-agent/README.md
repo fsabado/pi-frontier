@@ -52,7 +52,7 @@ pi install npm:pi-cursor-agent
 
 ## Requirements
 
-- `pi >= 0.49.0`
+- `pi >= 0.52.10`
 - Cursor subscription
 
 ## License

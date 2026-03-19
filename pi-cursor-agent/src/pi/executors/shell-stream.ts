@@ -1,4 +1,3 @@
-import type { TextContent } from "@mariozechner/pi-ai";
 import type {
   ShellArgs,
   ShellStream,
@@ -7,36 +6,29 @@ import {
   ShellRejected,
   ShellStream as ShellStreamClass,
   ShellStreamExit,
-  ShellStreamStart,
-  ShellStreamStderr,
   ShellStreamStdout,
 } from "../../__generated__/agent/v1/shell_exec_pb";
 import type { StreamExecutor } from "../../vendor/agent-exec";
 import {
   decodeToolCallId,
-  executePiTool,
   type PiToolContext,
 } from "../local-resource-provider/types";
-import { confirmIfDangerous, type LocalShellExecutor } from "./shell";
+import { requestToolExecution } from "../tool-bridge";
+import { toolResultToText } from "../utils/tool-result";
+import { confirmIfDangerous } from "./shell";
 
 export class LocalShellStreamExecutor
   implements StreamExecutor<ShellArgs, ShellStream>
 {
   private readonly ctx: PiToolContext;
-  private readonly shellExecutor: LocalShellExecutor;
 
-  constructor(ctx: PiToolContext, shellExecutor: LocalShellExecutor) {
+  constructor(ctx: PiToolContext) {
     this.ctx = ctx;
-    this.shellExecutor = shellExecutor;
   }
 
-  execute(_ctx: unknown, args: ShellArgs): AsyncIterable<ShellStream> {
-    return this.run(args);
-  }
-
-  private async *run(args: ShellArgs): AsyncIterable<ShellStream> {
+  async *execute(_ctx: unknown, args: ShellArgs): AsyncIterable<ShellStream> {
     const toolCallId = decodeToolCallId(args.toolCallId);
-    const cwd = args.workingDirectory || this.ctx.cwd;
+    const workingDirectory = args.workingDirectory || this.ctx.cwd;
 
     if (!this.ctx.getActiveTools().has("bash")) {
       yield new ShellStreamClass({
@@ -44,7 +36,7 @@ export class LocalShellStreamExecutor
           case: "rejected",
           value: new ShellRejected({
             command: args.command,
-            workingDirectory: args.workingDirectory,
+            workingDirectory,
             reason: "Tool not available",
             isReadonly: false,
           }),
@@ -53,7 +45,11 @@ export class LocalShellStreamExecutor
       yield new ShellStreamClass({
         event: {
           case: "exit",
-          value: new ShellStreamExit({ code: 1, cwd, aborted: false }),
+          value: new ShellStreamExit({
+            code: 1,
+            cwd: workingDirectory,
+            aborted: false,
+          }),
         },
       });
       return;
@@ -66,7 +62,7 @@ export class LocalShellStreamExecutor
           case: "rejected",
           value: new ShellRejected({
             command: args.command,
-            workingDirectory: args.workingDirectory,
+            workingDirectory,
             reason: "Command rejected",
             isReadonly: false,
           }),
@@ -75,54 +71,32 @@ export class LocalShellStreamExecutor
       yield new ShellStreamClass({
         event: {
           case: "exit",
-          value: new ShellStreamExit({ code: 1, cwd, aborted: false }),
+          value: new ShellStreamExit({
+            code: 1,
+            cwd: workingDirectory,
+            aborted: false,
+          }),
         },
       });
       return;
     }
-
-    yield new ShellStreamClass({
-      event: { case: "start", value: new ShellStreamStart({}) },
-    });
 
     const timeoutSeconds =
       args.timeout && args.timeout > 0 ? args.timeout : undefined;
-    const bashTool = this.shellExecutor.getBashTool(
-      args.workingDirectory || undefined,
-    );
 
-    const toolResult = await executePiTool(
-      this.ctx,
-      bashTool,
-      "bash",
-      toolCallId,
+    const piResult = await requestToolExecution(
+      this.ctx.getChannel?.() ?? null,
       {
-        command: args.command,
-        ...(timeoutSeconds != null ? { timeout: timeoutSeconds } : {}),
+        toolCallId,
+        piToolName: "bash",
+        piToolArgs: {
+          command: args.command,
+          ...(timeoutSeconds != null ? { timeout: timeoutSeconds } : {}),
+        },
       },
     );
 
-    const text = toolResult.content
-      .filter((c): c is TextContent => c.type === "text")
-      .map((c) => c.text)
-      .join("\n");
-
-    if (toolResult.isError) {
-      yield new ShellStreamClass({
-        event: {
-          case: "stderr",
-          value: new ShellStreamStderr({ data: text || "Shell failed" }),
-        },
-      });
-      yield new ShellStreamClass({
-        event: {
-          case: "exit",
-          value: new ShellStreamExit({ code: 1, cwd, aborted: false }),
-        },
-      });
-      return;
-    }
-
+    const text = toolResultToText(piResult);
     if (text) {
       yield new ShellStreamClass({
         event: {
@@ -135,7 +109,9 @@ export class LocalShellStreamExecutor
     yield new ShellStreamClass({
       event: {
         case: "exit",
-        value: new ShellStreamExit({ code: 0, cwd, aborted: false }),
+        value: new ShellStreamExit({
+          code: piResult.isError ? 1 : 0,
+        }),
       },
     });
   }
