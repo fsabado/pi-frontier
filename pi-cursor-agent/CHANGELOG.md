@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.4.1 (2026-03-20)
+
+### Features
+
+* Add overlay state for stream internal ([6104f7f](https://github.com/sudosubin/pi-frontier/commit/6104f7faac0bdab5b3686981dadad698f6313b76))
+* Add semantic tool registry ([0f2ef40](https://github.com/sudosubin/pi-frontier/commit/0f2ef40440a4729df0aabd5129606756f093522b))
+* Add state store for managing tool call ([80877a2](https://github.com/sudosubin/pi-frontier/commit/80877a2cce712b3f60652c6b53f6a0ead460d557))
+* Clean up session map memory after session change ([11a8ada](https://github.com/sudosubin/pi-frontier/commit/11a8adadbc9a36f18001b5c06034c28f04110f4d))
+* Update models and model variants ([ad0faea](https://github.com/sudosubin/pi-frontier/commit/ad0faea4b4c2c6185ac41c666943f7022fb415e6))
+
+### Bug Fixes
+
+* Add abort error handler for AgentService ([#5](https://github.com/sudosubin/pi-frontier/issues/5)) ([333df28](https://github.com/sudosubin/pi-frontier/commit/333df288170d78bcdd3501e971ea4016cd20788c))
+* Preserve cursor conversation state across continued sessions ([#6](https://github.com/sudosubin/pi-frontier/issues/6)) ([5e6fb80](https://github.com/sudosubin/pi-frontier/commit/5e6fb8061ce809b962b5d7c72a2512891a5beb36))
+* Transform cursor tool to pi tool ([e0326c1](https://github.com/sudosubin/pi-frontier/commit/e0326c13e1392a5a5775e9883505d12f5d77bd99))
+
 ## [0.4.0](https://github.com/sudosubin/pi-frontier/compare/pi-cursor-agent@0.3.0...pi-cursor-agent@0.4.0) (2026-02-17)
 ## [0.3.0](https://github.com/sudosubin/pi-frontier/compare/pi-cursor-agent@0.2.2...pi-cursor-agent@0.3.0) (2026-02-17)
 ## [0.2.2](https://github.com/sudosubin/pi-frontier/compare/pi-cursor-agent@0.2.1...pi-cursor-agent@0.2.2) (2026-02-17)
