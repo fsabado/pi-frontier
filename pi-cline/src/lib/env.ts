@@ -14,7 +14,11 @@ export const CLINE_RETRY_DELAY_MS = 2_000;
 
 const PI_CODING_AGENT_DIR =
   process.env["PI_CODING_AGENT_DIR"] || path.join(os.homedir(), ".pi", "agent");
-const PI_CLINE_CACHE_DIR = path.join(PI_CODING_AGENT_DIR, "cache", "pi-cline");
+export const PI_CLINE_CACHE_DIR = path.join(
+  PI_CODING_AGENT_DIR,
+  "cache",
+  "pi-cline",
+);
 
 export const PI_CLINE_MODELS_CACHE_FILE = path.join(
   PI_CLINE_CACHE_DIR,

@@ -9,18 +9,30 @@ import {
   updateCachedPiModelsIfStale,
 } from "./provider/models";
 import { getApiKey, login, refreshToken } from "./provider/oauth";
+import {
+  buildBranchReferenceFilter,
+  loadSessionState,
+  saveSessionState,
+} from "./provider/session-disk-state";
 import { createStateStore } from "./provider/state";
 import { streamCline } from "./provider/stream";
 
 export default function registerClineProvider(pi: ExtensionAPI) {
   let lastContext: ExtensionContext | null = null;
+  let currentSessionId: string | null = null;
   const state = createStateStore((type, data) => {
     pi.appendEntry(type, data);
   });
 
-  const refreshState = (ctx: ExtensionContext) => {
+  const refreshState = async (ctx: ExtensionContext) => {
     lastContext = ctx;
+    currentSessionId = ctx.sessionManager.getSessionId();
     state.resetFromContext(ctx);
+
+    try {
+      const snapshot = await loadSessionState(currentSessionId);
+      state.importSnapshot(snapshot, buildBranchReferenceFilter(ctx));
+    } catch {}
   };
 
   const refreshModels = () => {
@@ -29,23 +41,24 @@ export default function registerClineProvider(pi: ExtensionAPI) {
 
   const rememberContext = async (_event: unknown, ctx: ExtensionContext) => {
     lastContext = ctx;
+    currentSessionId = ctx.sessionManager.getSessionId();
   };
 
   pi.on("before_agent_start", rememberContext);
   pi.on("agent_start", rememberContext);
 
   pi.on("session_start", async (_event, ctx) => {
-    refreshState(ctx);
+    await refreshState(ctx);
     refreshModels();
   });
 
   pi.on("session_switch", async (_event, ctx) => {
-    refreshState(ctx);
+    await refreshState(ctx);
     refreshModels();
   });
 
   pi.on("session_tree", async (_event, ctx) => {
-    refreshState(ctx);
+    await refreshState(ctx);
   });
 
   pi.on("model_select", async (event, ctx) => {
@@ -65,6 +78,10 @@ export default function registerClineProvider(pi: ExtensionAPI) {
       streamCline(
         {
           getCwd: () => lastContext?.cwd || process.cwd(),
+          getSessionId: () => currentSessionId || "default",
+          persistState: async (sessionId) => {
+            await saveSessionState(sessionId, state.exportSnapshot());
+          },
           state,
         },
         model,

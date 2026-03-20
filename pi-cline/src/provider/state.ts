@@ -1,7 +1,7 @@
 import type { ExtensionContext } from "@mariozechner/pi-coding-agent";
 import type { RemoteToolCallMeta } from "../bridge/shared/remote-tool";
 
-interface StoredAssistantRawEntry {
+export interface StoredAssistantRawEntry {
   timestamp: number;
   rawText: string;
 }
@@ -10,20 +10,37 @@ interface StoredPromptCurrentTimeEntry {
   value: string;
 }
 
+export interface ClineStateSnapshot {
+  promptCurrentTime?: string;
+  assistantRaw: StoredAssistantRawEntry[];
+  remoteToolCalls: RemoteToolCallMeta[];
+}
+
+export interface ClineStateImportOptions {
+  assistantTimestamps?: ReadonlySet<number>;
+  toolCallIds?: ReadonlySet<string>;
+  preferExisting?: boolean;
+}
+
 export interface ClineStateStore {
   rememberAssistantRaw(entry: StoredAssistantRawEntry): void;
   getAssistantRaw(timestamp: number | undefined): string | undefined;
   rememberRemoteToolCall(entry: RemoteToolCallMeta): void;
   getRemoteToolCall(toolCallId: string): RemoteToolCallMeta | undefined;
   getOrCreatePromptCurrentTime(createValue: () => string): string;
+  exportSnapshot(): ClineStateSnapshot;
+  importSnapshot(
+    snapshot: ClineStateSnapshot | null | undefined,
+    options?: ClineStateImportOptions,
+  ): void;
   resetFromContext(ctx: ExtensionContext): void;
 }
 
-const assistantRawEntryType = "pi-cline:assistant-raw";
-const remoteToolCallEntryType = "pi-cline:remote-tool-call";
-const promptCurrentTimeEntryType = "pi-cline:prompt-current-time";
+export const ASSISTANT_RAW_ENTRY_TYPE = "pi-cline:assistant-raw";
+export const REMOTE_TOOL_CALL_ENTRY_TYPE = "pi-cline:remote-tool-call";
+export const PROMPT_CURRENT_TIME_ENTRY_TYPE = "pi-cline:prompt-current-time";
 
-const isAssistantRawEntry = (
+export const isAssistantRawEntry = (
   value: unknown,
 ): value is StoredAssistantRawEntry => {
   if (!value || typeof value !== "object") {
@@ -36,7 +53,9 @@ const isAssistantRawEntry = (
   );
 };
 
-const isRemoteToolCallMeta = (value: unknown): value is RemoteToolCallMeta => {
+export const isRemoteToolCallMeta = (
+  value: unknown,
+): value is RemoteToolCallMeta => {
   if (!value || typeof value !== "object") {
     return false;
   }
@@ -71,10 +90,19 @@ export function createStateStore(
   const remoteToolCallsById = new Map<string, RemoteToolCallMeta>();
   let promptCurrentTime: string | undefined;
 
+  const canImport = <K>(
+    key: K,
+    whitelist: ReadonlySet<K> | undefined,
+    existing: ReadonlyMap<K, unknown>,
+    preferExisting?: boolean,
+  ): boolean =>
+    (!whitelist || whitelist.has(key)) &&
+    !(preferExisting && existing.has(key));
+
   return {
     rememberAssistantRaw(entry) {
       assistantRawByTimestamp.set(entry.timestamp, entry.rawText);
-      appendEntry(assistantRawEntryType, entry);
+      appendEntry(ASSISTANT_RAW_ENTRY_TYPE, entry);
     },
 
     getAssistantRaw(timestamp) {
@@ -85,7 +113,7 @@ export function createStateStore(
 
     rememberRemoteToolCall(entry) {
       remoteToolCallsById.set(entry.toolCallId, entry);
-      appendEntry(remoteToolCallEntryType, entry);
+      appendEntry(REMOTE_TOOL_CALL_ENTRY_TYPE, entry);
     },
 
     getRemoteToolCall(toolCallId) {
@@ -98,8 +126,55 @@ export function createStateStore(
       }
 
       promptCurrentTime = createValue();
-      appendEntry(promptCurrentTimeEntryType, { value: promptCurrentTime });
+      appendEntry(PROMPT_CURRENT_TIME_ENTRY_TYPE, { value: promptCurrentTime });
       return promptCurrentTime;
+    },
+
+    exportSnapshot() {
+      return {
+        ...(promptCurrentTime ? { promptCurrentTime } : {}),
+        assistantRaw: [...assistantRawByTimestamp].map(
+          ([timestamp, rawText]) => ({ timestamp, rawText }),
+        ),
+        remoteToolCalls: [...remoteToolCallsById.values()],
+      };
+    },
+
+    importSnapshot(snapshot, options = {}) {
+      if (!snapshot) return;
+
+      if (
+        (!promptCurrentTime || !options.preferExisting) &&
+        snapshot.promptCurrentTime
+      ) {
+        promptCurrentTime = snapshot.promptCurrentTime;
+      }
+
+      for (const e of snapshot.assistantRaw) {
+        if (
+          canImport(
+            e.timestamp,
+            options.assistantTimestamps,
+            assistantRawByTimestamp,
+            options.preferExisting,
+          )
+        ) {
+          assistantRawByTimestamp.set(e.timestamp, e.rawText);
+        }
+      }
+
+      for (const e of snapshot.remoteToolCalls) {
+        if (
+          canImport(
+            e.toolCallId,
+            options.toolCallIds,
+            remoteToolCallsById,
+            options.preferExisting,
+          )
+        ) {
+          remoteToolCallsById.set(e.toolCallId, e);
+        }
+      }
     },
 
     resetFromContext(ctx: ExtensionContext) {
@@ -112,7 +187,7 @@ export function createStateStore(
           continue;
         }
 
-        if (entry.customType === assistantRawEntryType) {
+        if (entry.customType === ASSISTANT_RAW_ENTRY_TYPE) {
           if (isAssistantRawEntry(entry.data)) {
             assistantRawByTimestamp.set(
               entry.data.timestamp,
@@ -123,7 +198,7 @@ export function createStateStore(
         }
 
         if (
-          entry.customType === remoteToolCallEntryType &&
+          entry.customType === REMOTE_TOOL_CALL_ENTRY_TYPE &&
           isRemoteToolCallMeta(entry.data)
         ) {
           remoteToolCallsById.set(entry.data.toolCallId, entry.data);
@@ -131,7 +206,7 @@ export function createStateStore(
         }
 
         if (
-          entry.customType === promptCurrentTimeEntryType &&
+          entry.customType === PROMPT_CURRENT_TIME_ENTRY_TYPE &&
           isStoredPromptCurrentTimeEntry(entry.data)
         ) {
           promptCurrentTime = entry.data.value;

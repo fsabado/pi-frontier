@@ -1,6 +1,10 @@
 import type { Model } from "@mariozechner/pi-ai";
 import type { RemoteToolCallMeta } from "../../src/bridge/shared/remote-tool";
-import type { ClineStateStore } from "../../src/provider/state";
+import type {
+  ClineStateImportOptions,
+  ClineStateSnapshot,
+  ClineStateStore,
+} from "../../src/provider/state";
 
 export function createMockState(
   overrides: {
@@ -34,6 +38,44 @@ export function createMockState(
         promptCurrentTime = createValue();
       }
       return promptCurrentTime;
+    },
+    exportSnapshot(): ClineStateSnapshot {
+      return {
+        ...(promptCurrentTime ? { promptCurrentTime } : {}),
+        assistantRaw: [...assistantRawByTimestamp].map(
+          ([timestamp, rawText]) => ({ timestamp, rawText }),
+        ),
+        remoteToolCalls: [...remoteToolCallsById.values()],
+      };
+    },
+    importSnapshot(snapshot, options: ClineStateImportOptions = {}) {
+      if (!snapshot) return;
+
+      if (
+        (!promptCurrentTime || !options.preferExisting) &&
+        snapshot.promptCurrentTime
+      ) {
+        promptCurrentTime = snapshot.promptCurrentTime;
+      }
+
+      for (const e of snapshot.assistantRaw) {
+        if (
+          (!options.assistantTimestamps ||
+            options.assistantTimestamps.has(e.timestamp)) &&
+          !(options.preferExisting && assistantRawByTimestamp.has(e.timestamp))
+        ) {
+          assistantRawByTimestamp.set(e.timestamp, e.rawText);
+        }
+      }
+
+      for (const e of snapshot.remoteToolCalls) {
+        if (
+          (!options.toolCallIds || options.toolCallIds.has(e.toolCallId)) &&
+          !(options.preferExisting && remoteToolCallsById.has(e.toolCallId))
+        ) {
+          remoteToolCallsById.set(e.toolCallId, e);
+        }
+      }
     },
     resetFromContext() {},
   };

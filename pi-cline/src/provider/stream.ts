@@ -33,6 +33,8 @@ import type { ClineStateStore } from "./state";
 
 interface StreamDependencies {
   getCwd(): string;
+  getSessionId(): string;
+  persistState?(sessionId: string): Promise<void>;
   state: ClineStateStore;
   transport?: ClineChatTransport;
 }
@@ -77,6 +79,12 @@ function createOverlayState(baseState: ClineStateStore): ClineStateStore {
     getOrCreatePromptCurrentTime(createValue) {
       return baseState.getOrCreatePromptCurrentTime(createValue);
     },
+
+    exportSnapshot() {
+      return baseState.exportSnapshot();
+    },
+
+    importSnapshot(_snapshot, _options) {},
 
     resetFromContext() {},
   };
@@ -136,6 +144,7 @@ export function streamCline(
         throw new Error("No Cline access token found. Log in to Cline in pi.");
       }
 
+      const sessionId = options?.sessionId || deps.getSessionId();
       const capabilities: PiToolCapabilities = {
         activeTools: new Set((context.tools || []).map((tool) => tool.name)),
       };
@@ -143,10 +152,7 @@ export function streamCline(
       const runtimeInfo = collectPromptRuntimeInfo(cwd);
       const isMultiRoot =
         Object.keys(runtimeInfo.workspaceConfiguration.workspaces).length > 1;
-      const headers = buildClineRequestHeaders(
-        options?.sessionId || "",
-        isMultiRoot,
-      );
+      const headers = buildClineRequestHeaders(sessionId, isMultiRoot);
       const overlayState = createOverlayState(deps.state);
       const localContext: Context = {
         ...context,
@@ -269,6 +275,10 @@ export function streamCline(
         } else {
           output.stopReason = "stop";
         }
+
+        try {
+          await deps.persistState?.(sessionId);
+        } catch {}
 
         stream.push({
           type: "done",
