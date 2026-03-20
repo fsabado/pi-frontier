@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.2 (2026-03-20)
+
+### Features
+
+* Persist session replay state to disk with branch-safe recovery ([92f8066](https://github.com/sudosubin/pi-frontier/commit/92f80663ad53f638ff0d02511799d5bad638b56d))
+
 ## 0.1.1 (2026-03-15)
 
 ### Features
