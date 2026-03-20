@@ -5,6 +5,7 @@ const ASSISTANT_CONTENT_ENTRY_TYPE = "pi-cursor-agent:assistant-content";
 
 export interface StoredToolCallMeta {
   toolCallId: string;
+  cursorExecType: string;
   piToolName: string;
   piToolArgs: Record<string, unknown>;
   assistantTimestamp: number;
@@ -31,6 +32,7 @@ const isStoredToolCallMeta = (value: unknown): value is StoredToolCallMeta => {
   return (
     typeof e.toolCallId === "string" &&
     e.toolCallId.length > 0 &&
+    typeof e.cursorExecType === "string" &&
     typeof e.piToolName === "string" &&
     !!e.piToolArgs &&
     typeof e.piToolArgs === "object" &&

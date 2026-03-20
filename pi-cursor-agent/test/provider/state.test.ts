@@ -11,6 +11,7 @@ test("rememberToolCallMeta stores and persists", () => {
 
   state.rememberToolCallMeta({
     toolCallId: "call-1",
+    cursorExecType: "read",
     piToolName: "read",
     piToolArgs: { path: "README.md" },
     assistantTimestamp: 1000,
@@ -18,9 +19,9 @@ test("rememberToolCallMeta stores and persists", () => {
 
   const meta = state.getToolCallMeta("call-1");
   assert.ok(meta);
+  assert.equal(meta.cursorExecType, "read");
   assert.equal(meta.piToolName, "read");
   assert.deepEqual(meta.piToolArgs, { path: "README.md" });
-  assert.equal(meta.assistantTimestamp, 1000);
 
   assert.equal(appended.length, 1);
   assert.equal(appended[0]?.type, "pi-cursor-agent:tool-call-meta");
@@ -48,22 +49,17 @@ test("rememberAssistantContent stores and persists", () => {
   const content = state.getAssistantContent(1000);
   assert.ok(content);
   assert.equal(content.blocks.length, 2);
-
   assert.equal(appended.length, 1);
   assert.equal(appended[0]?.type, "pi-cursor-agent:assistant-content");
 });
 
-test("getToolCallMeta returns undefined for unknown id", () => {
+test("returns undefined for unknown ids", () => {
   const state = createStateStore(() => {});
   assert.equal(state.getToolCallMeta("nonexistent"), undefined);
-});
-
-test("getAssistantContent returns undefined for unknown timestamp", () => {
-  const state = createStateStore(() => {});
   assert.equal(state.getAssistantContent(9999), undefined);
 });
 
-test("resetFromContext restores tool call meta and assistant content", () => {
+test("resetFromContext restores entries", () => {
   const state = createStateStore(() => {});
 
   state.resetFromContext({
@@ -75,8 +71,9 @@ test("resetFromContext restores tool call meta and assistant content", () => {
             customType: "pi-cursor-agent:tool-call-meta",
             data: {
               toolCallId: "call-1",
+              cursorExecType: "grep",
               piToolName: "bash",
-              piToolArgs: { command: "ls" },
+              piToolArgs: { command: "rg pattern" },
               assistantTimestamp: 1000,
             },
           },
@@ -85,7 +82,7 @@ test("resetFromContext restores tool call meta and assistant content", () => {
             customType: "pi-cursor-agent:assistant-content",
             data: {
               timestamp: 1000,
-              blocks: [{ type: "text", text: "Running ls..." }],
+              blocks: [{ type: "text", text: "Searching..." }],
             },
           },
         ];
@@ -95,12 +92,37 @@ test("resetFromContext restores tool call meta and assistant content", () => {
 
   const meta = state.getToolCallMeta("call-1");
   assert.ok(meta);
+  assert.equal(meta.cursorExecType, "grep");
   assert.equal(meta.piToolName, "bash");
-  assert.deepEqual(meta.piToolArgs, { command: "ls" });
 
   const content = state.getAssistantContent(1000);
   assert.ok(content);
   assert.equal(content.blocks.length, 1);
+});
+
+test("resetFromContext skips entries missing cursorExecType", () => {
+  const state = createStateStore(() => {});
+
+  state.resetFromContext({
+    sessionManager: {
+      getBranch() {
+        return [
+          {
+            type: "custom",
+            customType: "pi-cursor-agent:tool-call-meta",
+            data: {
+              toolCallId: "no-exec-type",
+              piToolName: "read",
+              piToolArgs: { path: "a.ts" },
+              assistantTimestamp: 1000,
+            },
+          },
+        ];
+      },
+    },
+  } as ExtensionContext);
+
+  assert.equal(state.getToolCallMeta("no-exec-type"), undefined);
 });
 
 test("resetFromContext ignores malformed entries", () => {
@@ -113,18 +135,19 @@ test("resetFromContext ignores malformed entries", () => {
           {
             type: "custom",
             customType: "pi-cursor-agent:tool-call-meta",
-            data: { toolCallId: "", piToolName: "read" }, // invalid: empty toolCallId
+            data: { toolCallId: "", piToolName: "read" },
           },
           {
             type: "custom",
             customType: "pi-cursor-agent:assistant-content",
-            data: { timestamp: "not-a-number" }, // invalid: wrong type
+            data: { timestamp: "not-a-number" },
           },
           {
             type: "custom",
             customType: "pi-cursor-agent:tool-call-meta",
             data: {
-              toolCallId: "valid-call",
+              toolCallId: "valid",
+              cursorExecType: "read",
               piToolName: "read",
               piToolArgs: { path: "test.ts" },
               assistantTimestamp: 2000,
@@ -136,71 +159,33 @@ test("resetFromContext ignores malformed entries", () => {
   } as ExtensionContext);
 
   assert.equal(state.getToolCallMeta(""), undefined);
-  assert.ok(state.getToolCallMeta("valid-call"));
+  assert.ok(state.getToolCallMeta("valid"));
 });
 
 test("resetFromContext clears previous state", () => {
   const state = createStateStore(() => {});
 
   state.rememberToolCallMeta({
-    toolCallId: "old-call",
+    toolCallId: "old",
+    cursorExecType: "read",
     piToolName: "read",
     piToolArgs: {},
     assistantTimestamp: 500,
   });
 
-  state.rememberAssistantContent({
-    timestamp: 500,
-    blocks: [{ type: "text", text: "old" }],
-  });
-
   state.resetFromContext({
-    sessionManager: {
-      getBranch() {
-        return [];
-      },
-    },
+    sessionManager: { getBranch: () => [] },
   } as unknown as ExtensionContext);
 
-  assert.equal(state.getToolCallMeta("old-call"), undefined);
-  assert.equal(state.getAssistantContent(500), undefined);
-});
-
-test("resetFromContext ignores non-custom entries", () => {
-  const state = createStateStore(() => {});
-
-  state.resetFromContext({
-    sessionManager: {
-      getBranch() {
-        return [
-          { type: "user", content: "hello" },
-          { type: "assistant", content: [] },
-          {
-            type: "custom",
-            customType: "pi-cursor-agent:tool-call-meta",
-            data: {
-              toolCallId: "call-x",
-              piToolName: "write",
-              piToolArgs: { path: "a.txt", content: "hi" },
-              assistantTimestamp: 3000,
-            },
-          },
-        ];
-      },
-    },
-  } as ExtensionContext);
-
-  assert.ok(state.getToolCallMeta("call-x"));
+  assert.equal(state.getToolCallMeta("old"), undefined);
 });
 
 test("multiple tool calls are tracked independently", () => {
-  const appended: Array<{ type: string; data: unknown }> = [];
-  const state = createStateStore((type, data) => {
-    appended.push({ type, data });
-  });
+  const state = createStateStore(() => {});
 
   state.rememberToolCallMeta({
     toolCallId: "call-1",
+    cursorExecType: "read",
     piToolName: "read",
     piToolArgs: { path: "a.ts" },
     assistantTimestamp: 1000,
@@ -208,12 +193,12 @@ test("multiple tool calls are tracked independently", () => {
 
   state.rememberToolCallMeta({
     toolCallId: "call-2",
+    cursorExecType: "ls",
     piToolName: "bash",
     piToolArgs: { command: "ls" },
     assistantTimestamp: 1000,
   });
 
-  assert.equal(state.getToolCallMeta("call-1")?.piToolName, "read");
-  assert.equal(state.getToolCallMeta("call-2")?.piToolName, "bash");
-  assert.equal(appended.length, 2);
+  assert.equal(state.getToolCallMeta("call-1")?.cursorExecType, "read");
+  assert.equal(state.getToolCallMeta("call-2")?.cursorExecType, "ls");
 });

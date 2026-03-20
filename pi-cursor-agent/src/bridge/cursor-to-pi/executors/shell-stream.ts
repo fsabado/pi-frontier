@@ -88,6 +88,7 @@ export class LocalShellStreamExecutor
       this.ctx.getChannel?.() ?? null,
       {
         toolCallId,
+        cursorExecType: "shell-stream",
         piToolName: "bash",
         piToolArgs: {
           command: args.command,

@@ -347,6 +347,7 @@ export class LocalGrepExecutor implements Executor<GrepArgs, GrepResult> {
       this.ctx.getChannel?.() ?? null,
       {
         toolCallId,
+        cursorExecType: "grep",
         piToolName: "bash",
         piToolArgs: { command },
       },

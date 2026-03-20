@@ -68,6 +68,7 @@ export class LocalDeleteExecutor implements Executor<DeleteArgs, DeleteResult> {
       this.ctx.getChannel?.() ?? null,
       {
         toolCallId,
+        cursorExecType: "delete",
         piToolName: "bash",
         piToolArgs: { command: `rm ${shellQuote(args.path)}` },
       },

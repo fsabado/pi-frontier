@@ -70,6 +70,7 @@ export class LocalReadExecutor implements Executor<ReadArgs, ReadResult> {
       this.ctx.getChannel?.() ?? null,
       {
         toolCallId,
+        cursorExecType: "read",
         piToolName: "read",
         piToolArgs: { path: args.path },
       },

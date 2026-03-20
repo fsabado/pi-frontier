@@ -118,6 +118,7 @@ export class LocalWriteExecutor implements Executor<WriteArgs, WriteResult> {
       this.ctx.getChannel?.() ?? null,
       {
         toolCallId,
+        cursorExecType: "write",
         piToolName: "write",
         piToolArgs: { path: args.path, content },
       },
@@ -149,6 +150,7 @@ export class LocalWriteExecutor implements Executor<WriteArgs, WriteResult> {
       this.ctx.getChannel?.() ?? null,
       {
         toolCallId,
+        cursorExecType: "write-binary",
         piToolName: "bash",
         piToolArgs: { command },
       },

@@ -7,6 +7,7 @@ export function shellQuote(value: string): string {
 
 export interface ToolExecRequest {
   toolCallId: string;
+  cursorExecType: string;
   piToolName: string;
   piToolArgs: Record<string, unknown>;
 }

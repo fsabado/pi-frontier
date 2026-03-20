@@ -136,6 +136,7 @@ export class LocalLsExecutor implements Executor<LsArgs, LsResult> {
       this.ctx.getChannel?.() ?? null,
       {
         toolCallId,
+        cursorExecType: "ls",
         piToolName: "bash",
         piToolArgs: {
           command,

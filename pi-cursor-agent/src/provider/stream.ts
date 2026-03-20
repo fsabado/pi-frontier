@@ -309,6 +309,7 @@ function emitToolCalls(
   for (const request of tools) {
     state.rememberToolCallMeta({
       toolCallId: request.toolCallId,
+      cursorExecType: request.cursorExecType,
       piToolName: request.piToolName,
       piToolArgs: request.piToolArgs,
       assistantTimestamp: output.timestamp,

@@ -129,6 +129,7 @@ export class LocalShellExecutor implements Executor<ShellArgs, ShellResult> {
       this.ctx.getChannel?.() ?? null,
       {
         toolCallId,
+        cursorExecType: "shell",
         piToolName: "bash",
         piToolArgs: {
           command: args.command,
