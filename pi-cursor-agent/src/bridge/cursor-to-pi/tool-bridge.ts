@@ -27,10 +27,7 @@ export function requestToolExecution(
     pendingResults.set(request.toolCallId, { resolve, reject });
 
     if (channel) {
-      channel.push({
-        kind: "tool-exec-request",
-        request,
-      });
+      channel.push({ kind: "tool-exec-request", request });
     } else {
       pendingResults.delete(request.toolCallId);
       reject(new Error("Tool bridge not available — no active stream"));

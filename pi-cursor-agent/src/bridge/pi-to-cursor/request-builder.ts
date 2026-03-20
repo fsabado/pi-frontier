@@ -1,6 +1,7 @@
 import { type JsonValue, Value } from "@bufbuild/protobuf";
 import type {
   Api,
+  AssistantMessage,
   Context,
   Message,
   Model,
@@ -27,6 +28,7 @@ import {
   McpToolDefinition as McpToolDefinitionClass,
   McpTools,
 } from "../../__generated__/agent/v1/mcp_pb";
+import type { CursorStateStore } from "../../provider/state";
 import { type BlobStore, getBlobId } from "../../vendor/agent-kv";
 import { toolResultToText } from "../shared/tool-result";
 
@@ -53,13 +55,50 @@ function extractUserMessageText(msg: Message): string {
     .trim();
 }
 
-function extractAssistantMessageText(msg: Message): string {
-  if (msg.role !== "assistant") return "";
+/** Format content blocks (thinking, text, toolCall) into a single string. */
+function formatContentBlocks(blocks: unknown[]): string {
+  const parts: string[] = [];
+  for (const raw of blocks) {
+    if (!raw || typeof raw !== "object") continue;
+    const b = raw as Record<string, unknown>;
+    switch (b["type"]) {
+      case "thinking":
+        if (b["thinking"]) parts.push(String(b["thinking"]));
+        break;
+      case "text":
+        if (b["text"]) parts.push(String(b["text"]));
+        break;
+      case "toolCall":
+        parts.push(`[Tool: ${String(b["name"] || "unknown")}]`);
+        break;
+    }
+  }
+  return parts.join("\n\n");
+}
+
+/** Reconstruct assistant text from stored content or Pi message blocks. */
+function reconstructAssistantText(
+  msg: AssistantMessage,
+  state: CursorStateStore | undefined,
+): string {
+  const stored = state?.getAssistantContent(msg.timestamp);
+  if (stored && stored.blocks.length > 0) {
+    return formatContentBlocks(stored.blocks);
+  }
   if (!Array.isArray(msg.content)) return "";
-  return msg.content
-    .filter((c): c is TextContent => c.type === "text")
-    .map((c) => c.text)
-    .join("\n");
+  return formatContentBlocks(msg.content as unknown[]);
+}
+
+/** Format a tool result with exec-type label from stored metadata. */
+function formatToolResultStep(
+  msg: ToolResultMessage,
+  state: CursorStateStore | undefined,
+): string {
+  const text = toolResultToText(msg);
+  const meta = state?.getToolCallMeta(msg.toolCallId);
+  const label = meta ? meta.cursorExecType : "Tool";
+  const status = msg.isError ? "error" : "result";
+  return `[${label} ${status}]\n${text || "(no output)"}`;
 }
 
 function storeBlob(blobStore: BlobStore, bytes: Uint8Array): Uint8Array {
@@ -71,6 +110,7 @@ function storeBlob(blobStore: BlobStore, bytes: Uint8Array): Uint8Array {
 function buildConversationTurns(
   messages: Message[],
   blobStore: BlobStore,
+  state: CursorStateStore | undefined,
 ): Uint8Array[] {
   const turns: Uint8Array[] = [];
 
@@ -113,7 +153,10 @@ function buildConversationTurns(
       }
 
       if (stepMsg.role === "assistant") {
-        const text = extractAssistantMessageText(stepMsg);
+        const text = reconstructAssistantText(
+          stepMsg as AssistantMessage,
+          state,
+        );
         if (text) {
           const step = new ConversationStep({
             message: {
@@ -124,14 +167,12 @@ function buildConversationTurns(
           stepBlobIds.push(storeBlob(blobStore, step.toBinary()));
         }
       } else if (stepMsg.role === "toolResult") {
-        const text = toolResultToText(stepMsg as ToolResultMessage);
+        const text = formatToolResultStep(stepMsg as ToolResultMessage, state);
         if (text) {
           const step = new ConversationStep({
             message: {
               case: "assistantMessage",
-              value: new AssistantMessageProto({
-                text: `[Tool Result]\n${text}`,
-              }),
+              value: new AssistantMessageProto({ text }),
             },
           });
           stepBlobIds.push(storeBlob(blobStore, step.toBinary()));
@@ -192,6 +233,7 @@ interface BuildRunRequestParams {
   blobStore: BlobStore;
   conversationState: ConversationStateStructure | undefined;
   mcpToolDefinitions?: McpToolDefinition[];
+  state?: CursorStateStore;
 }
 
 interface BuildRunRequestResult {
@@ -232,6 +274,7 @@ export function buildRunRequest(
   const turns = buildConversationTurns(
     params.context.messages,
     params.blobStore,
+    params.state,
   );
 
   const conversationState =

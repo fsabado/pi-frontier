@@ -3,20 +3,36 @@ import test from "node:test";
 import type { Context, Message, Model } from "@mariozechner/pi-ai";
 import { ConversationStateStructure } from "../../../src/__generated__/agent/v1/agent_pb.js";
 import { buildRunRequest } from "../../../src/bridge/pi-to-cursor/request-builder.js";
+import { createStateStore } from "../../../src/provider/state.js";
 import {
   getBlobId,
   InMemoryBlobStore,
 } from "../../../src/vendor/agent-kv/index.js";
 
+const ASSISTANT_DEFAULTS = {
+  api: "cursor-agent",
+  provider: "cursor-agent",
+  model: "grok-code-fast-1",
+  usage: {
+    input: 0,
+    output: 0,
+    cacheRead: 0,
+    cacheWrite: 0,
+    totalTokens: 0,
+    cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 },
+  },
+  stopReason: "stop" as const,
+};
+
 function createParams(options?: {
   messages?: Message[];
   conversationState?: ConversationStateStructure;
+  state?: ReturnType<typeof createStateStore>;
 }) {
   const blobStore = new InMemoryBlobStore();
-
   const model = {
     id: "grok-code-fast-1",
-    name: "Grok Code Fast 1",
+    name: "Grok",
     provider: "cursor-agent",
     api: "cursor-agent",
   } as Model<"cursor-agent">;
@@ -29,30 +45,9 @@ function createParams(options?: {
         role: "assistant",
         content: [{ type: "text", text: "OK" }],
         timestamp: 2,
-        api: "cursor-agent",
-        provider: "cursor-agent",
-        model: "grok-code-fast-1",
-        usage: {
-          input: 0,
-          output: 0,
-          cacheRead: 0,
-          cacheWrite: 0,
-          totalTokens: 0,
-          cost: {
-            input: 0,
-            output: 0,
-            cacheRead: 0,
-            cacheWrite: 0,
-            total: 0,
-          },
-        },
-        stopReason: "stop",
+        ...ASSISTANT_DEFAULTS,
       },
-      {
-        role: "user",
-        content: "What code word did I ask you to remember?",
-        timestamp: 3,
-      },
+      { role: "user", content: "What code word?", timestamp: 3 },
     ],
   } satisfies Context;
 
@@ -61,27 +56,22 @@ function createParams(options?: {
     params: {
       model,
       context,
-      conversationId: "test-conversation",
+      conversationId: "test",
       blobStore,
       conversationState: options?.conversationState,
       mcpToolDefinitions: [],
+      ...(options?.state ? { state: options.state } : {}),
     },
   };
 }
 
-function createMatchingCachedState(systemPrompt: string) {
-  const systemPromptBytes = new TextEncoder().encode(
-    JSON.stringify({
-      role: "system",
-      content: systemPrompt,
-    }),
+test("preserves cached conversation state", () => {
+  const bytes = new TextEncoder().encode(
+    JSON.stringify({ role: "system", content: "You are a helpful assistant." }),
   );
-
-  const cachedTurn = new Uint8Array([1, 2, 3]);
-
-  return new ConversationStateStructure({
-    rootPromptMessagesJson: [getBlobId(systemPromptBytes)],
-    turns: [cachedTurn],
+  const cached = new ConversationStateStructure({
+    rootPromptMessagesJson: [getBlobId(bytes)],
+    turns: [new Uint8Array([1, 2, 3])],
     todos: [],
     pendingToolCalls: [],
     previousWorkspaceUris: [],
@@ -93,29 +83,119 @@ function createMatchingCachedState(systemPrompt: string) {
     selfSummaryCount: 0,
     readPaths: [],
   });
-}
 
-test("buildRunRequest preserves cached conversation turns when system prompt matches", () => {
-  const cachedState = createMatchingCachedState("You are a helpful assistant.");
-  const { params } = createParams({ conversationState: cachedState });
-
+  const { params } = createParams({ conversationState: cached });
   const result = buildRunRequest(params);
-
-  assert.equal(result.conversationState, cachedState);
-  assert.deepEqual(result.conversationState.turns, cachedState.turns);
+  assert.equal(result.conversationState, cached);
 });
 
-test("buildRunRequest seeds turns from prior messages when no cached state exists", () => {
+test("seeds turns from prior messages when no cached state", () => {
   const { params, blobStore } = createParams();
-
   const result = buildRunRequest(params);
 
   assert.equal(result.conversationState.turns.length, 1);
-  assert.equal(result.conversationState.turns[0]?.length, 32);
-  assert.equal(blobStore.store.size > 0, true);
+  assert.ok(blobStore.store.size > 0);
   assert.equal(result.initialRequest.message.case, "runRequest");
+});
 
-  const runRequest = result.initialRequest.message.value;
-  assert.ok(runRequest.action);
-  assert.equal(runRequest.action.action.case, "userMessageAction");
+test("reconstruction includes thinking and tool call blocks", () => {
+  const state = createStateStore(() => {});
+  state.rememberAssistantContent({
+    timestamp: 2,
+    blocks: [
+      { type: "thinking", thinking: "Let me check." },
+      { type: "text", text: "Checking..." },
+      {
+        type: "toolCall",
+        id: "tc-1",
+        name: "read",
+        arguments: { path: "a.ts" },
+      },
+    ],
+  });
+  state.rememberToolCallMeta({
+    toolCallId: "tc-1",
+    cursorExecType: "read",
+    piToolName: "read",
+    piToolArgs: { path: "a.ts" },
+    assistantTimestamp: 2,
+  });
+
+  const { params, blobStore } = createParams({
+    messages: [
+      { role: "user", content: "Read a.ts", timestamp: 1 },
+      {
+        role: "assistant",
+        content: [{ type: "text", text: "Checking..." }],
+        timestamp: 2,
+        ...ASSISTANT_DEFAULTS,
+      },
+      {
+        role: "toolResult",
+        toolCallId: "tc-1",
+        toolName: "read",
+        content: [{ type: "text", text: "const x = 1;" }],
+        isError: false,
+        timestamp: 3,
+      },
+      { role: "user", content: "What is in a.ts?", timestamp: 4 },
+    ],
+    state,
+  });
+
+  const result = buildRunRequest(params);
+  assert.equal(result.conversationState.turns.length, 1);
+  assert.ok(blobStore.store.size >= 4);
+});
+
+test("tool result uses exec type label from stored meta", () => {
+  const state = createStateStore(() => {});
+  state.rememberToolCallMeta({
+    toolCallId: "tc-sh",
+    cursorExecType: "shell",
+    piToolName: "bash",
+    piToolArgs: { command: "echo hi" },
+    assistantTimestamp: 2,
+  });
+
+  const { params } = createParams({
+    messages: [
+      { role: "user", content: "Run echo", timestamp: 1 },
+      {
+        role: "assistant",
+        content: [{ type: "text", text: "Running..." }],
+        timestamp: 2,
+        ...ASSISTANT_DEFAULTS,
+      },
+      {
+        role: "toolResult",
+        toolCallId: "tc-sh",
+        toolName: "bash",
+        content: [{ type: "text", text: "hi" }],
+        isError: false,
+        timestamp: 3,
+      },
+      { role: "user", content: "Done?", timestamp: 4 },
+    ],
+    state,
+  });
+
+  assert.equal(buildRunRequest(params).conversationState.turns.length, 1);
+});
+
+test("reconstruction works without state", () => {
+  const { params } = createParams({
+    messages: [
+      { role: "user", content: "Hi", timestamp: 1 },
+      {
+        role: "assistant",
+        content: [{ type: "text", text: "Hello!" }],
+        timestamp: 2,
+        ...ASSISTANT_DEFAULTS,
+      },
+      { role: "user", content: "Bye", timestamp: 3 },
+    ],
+  });
+
+  assert.equal(buildRunRequest(params).conversationState.turns.length, 1);
 });

@@ -25,7 +25,7 @@ export function getDefaultPiToolName(execType: CursorExecType): PiToolName {
   return CURSOR_EXEC_TO_PI_TOOL[execType];
 }
 
-/** Infer the Cursor exec type from a Pi tool call (fallback when no stored meta exists). */
+/** Infer the Cursor exec type from a Pi tool call. */
 export function inferCursorExecType(
   piToolName: string,
   piToolArgs: Record<string, unknown>,
