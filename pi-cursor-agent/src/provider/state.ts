@@ -49,6 +49,33 @@ const isStoredAssistantContent = (
   return typeof e.timestamp === "number" && Array.isArray(e.blocks);
 };
 
+/** In-memory layer over a base state. Reads cascade; writes are not persisted. */
+export function createOverlayState(base: CursorStateStore): CursorStateStore {
+  const toolCallMetaById = new Map<string, StoredToolCallMeta>();
+  const assistantContentByTimestamp = new Map<number, StoredAssistantContent>();
+
+  return {
+    rememberToolCallMeta(entry) {
+      toolCallMetaById.set(entry.toolCallId, entry);
+    },
+    getToolCallMeta(toolCallId) {
+      return (
+        toolCallMetaById.get(toolCallId) ?? base.getToolCallMeta(toolCallId)
+      );
+    },
+    rememberAssistantContent(entry) {
+      assistantContentByTimestamp.set(entry.timestamp, entry);
+    },
+    getAssistantContent(timestamp) {
+      return (
+        assistantContentByTimestamp.get(timestamp) ??
+        base.getAssistantContent(timestamp)
+      );
+    },
+    resetFromContext() {},
+  };
+}
+
 export function createStateStore(
   appendEntry: (customType: string, data?: unknown) => void,
 ): CursorStateStore {

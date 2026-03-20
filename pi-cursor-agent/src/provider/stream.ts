@@ -56,7 +56,7 @@ import {
   setLiveSession,
 } from "./agent-stream-hook";
 import { toCursorId } from "./model-mapping";
-import type { CursorStateStore } from "./state";
+import { type CursorStateStore, createOverlayState } from "./state";
 
 function createCheckpointHandler(
   handler: (checkpoint: ConversationStateStructure) => void,
@@ -396,6 +396,7 @@ export function streamCursorAgent(
 
         const blobStore = agentStore.getBlobStore();
         const cursorModelId = toCursorId(model.id, options?.reasoning);
+        const overlayState = createOverlayState(state);
         const { initialRequest, conversationState } = buildRunRequest({
           model: { ...model, id: cursorModelId },
           context,
@@ -403,7 +404,7 @@ export function streamCursorAgent(
           blobStore,
           conversationState: agentStore.getConversationStateStructure(),
           mcpToolDefinitions: requestContextTools,
-          state,
+          state: overlayState,
         });
         agentStore.conversationStateStructure = conversationState;
 

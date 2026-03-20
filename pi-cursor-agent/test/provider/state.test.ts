@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { ExtensionContext } from "@mariozechner/pi-coding-agent";
-import { createStateStore } from "../../src/provider/state.js";
+import {
+  createOverlayState,
+  createStateStore,
+} from "../../src/provider/state.js";
 
 function mockCtx(
   entries: Array<{ type: string; customType?: string; data?: unknown }>,
@@ -132,4 +135,46 @@ test("multiple tool calls tracked independently", () => {
 
   assert.equal(state.getToolCallMeta("a")?.cursorExecType, "read");
   assert.equal(state.getToolCallMeta("b")?.cursorExecType, "ls");
+});
+
+test("overlay reads cascade to base, writes do not persist", () => {
+  const appended: string[] = [];
+  const base = createStateStore((type) => appended.push(type));
+  base.rememberToolCallMeta({ ...META, toolCallId: "base-call" });
+
+  const overlay = createOverlayState(base);
+
+  // reads cascade to base
+  assert.equal(overlay.getToolCallMeta("base-call")?.piToolName, "read");
+
+  // writes stay in overlay, not persisted
+  const beforeCount = appended.length;
+  overlay.rememberToolCallMeta({ ...META, toolCallId: "overlay-call" });
+  assert.equal(appended.length, beforeCount); // no new appendEntry
+  assert.equal(overlay.getToolCallMeta("overlay-call")?.piToolName, "read");
+  assert.equal(base.getToolCallMeta("overlay-call"), undefined); // not in base
+
+  // same for assistant content
+  overlay.rememberAssistantContent({
+    timestamp: 999,
+    blocks: [{ type: "text", text: "tmp" }],
+  });
+  assert.equal(appended.length, beforeCount);
+  assert.equal(overlay.getAssistantContent(999)?.blocks.length, 1);
+  assert.equal(base.getAssistantContent(999), undefined);
+});
+
+test("overlay shadows base on key collision", () => {
+  const base = createStateStore(() => {});
+  base.rememberToolCallMeta({ ...META, toolCallId: "shared" });
+
+  const overlay = createOverlayState(base);
+  overlay.rememberToolCallMeta({
+    ...META,
+    toolCallId: "shared",
+    cursorExecType: "grep",
+  });
+
+  assert.equal(overlay.getToolCallMeta("shared")?.cursorExecType, "grep");
+  assert.equal(base.getToolCallMeta("shared")?.cursorExecType, "read");
 });
