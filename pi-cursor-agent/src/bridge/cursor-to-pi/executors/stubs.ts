@@ -1,44 +1,47 @@
-import type { BackgroundShellSpawnArgs } from "../../__generated__/agent/v1/background_shell_exec_pb";
-import { BackgroundShellSpawnResult } from "../../__generated__/agent/v1/background_shell_exec_pb";
-import type { ComputerUseArgs } from "../../__generated__/agent/v1/computer_use_tool_pb";
+import type { BackgroundShellSpawnArgs } from "../../../__generated__/agent/v1/background_shell_exec_pb";
+import { BackgroundShellSpawnResult } from "../../../__generated__/agent/v1/background_shell_exec_pb";
+import type { ComputerUseArgs } from "../../../__generated__/agent/v1/computer_use_tool_pb";
 import {
   ComputerUseError,
   ComputerUseResult,
-} from "../../__generated__/agent/v1/computer_use_tool_pb";
-import type { DiagnosticsArgs } from "../../__generated__/agent/v1/diagnostics_exec_pb";
+} from "../../../__generated__/agent/v1/computer_use_tool_pb";
+import type { DiagnosticsArgs } from "../../../__generated__/agent/v1/diagnostics_exec_pb";
 import {
   DiagnosticsResult,
   DiagnosticsSuccess,
-} from "../../__generated__/agent/v1/diagnostics_exec_pb";
-import type { FetchArgs } from "../../__generated__/agent/v1/fetch_tool_pb";
+} from "../../../__generated__/agent/v1/diagnostics_exec_pb";
+import type { FetchArgs } from "../../../__generated__/agent/v1/fetch_tool_pb";
 import {
   FetchError,
   FetchResult,
-} from "../../__generated__/agent/v1/fetch_tool_pb";
+} from "../../../__generated__/agent/v1/fetch_tool_pb";
 import type {
   ListMcpResourcesExecArgs,
   ReadMcpResourceExecArgs,
-} from "../../__generated__/agent/v1/mcp_resource_tool_pb";
+} from "../../../__generated__/agent/v1/mcp_resource_tool_pb";
 import {
   ListMcpResourcesExecResult,
   ListMcpResourcesRejected,
   ReadMcpResourceExecResult,
   ReadMcpResourceRejected,
-} from "../../__generated__/agent/v1/mcp_resource_tool_pb";
-import type { McpArgs } from "../../__generated__/agent/v1/mcp_tool_pb";
-import { McpError, McpResult } from "../../__generated__/agent/v1/mcp_tool_pb";
-import type { RecordScreenArgs } from "../../__generated__/agent/v1/record_screen_tool_pb";
+} from "../../../__generated__/agent/v1/mcp_resource_tool_pb";
+import type { McpArgs } from "../../../__generated__/agent/v1/mcp_tool_pb";
+import {
+  McpError,
+  McpResult,
+} from "../../../__generated__/agent/v1/mcp_tool_pb";
+import type { RecordScreenArgs } from "../../../__generated__/agent/v1/record_screen_tool_pb";
 import {
   RecordScreenFailure,
   RecordScreenResult,
-} from "../../__generated__/agent/v1/record_screen_tool_pb";
-import { ShellRejected } from "../../__generated__/agent/v1/shell_exec_pb";
-import type { WriteShellStdinArgs } from "../../__generated__/agent/v1/write_shell_stdin_tool_pb";
+} from "../../../__generated__/agent/v1/record_screen_tool_pb";
+import { ShellRejected } from "../../../__generated__/agent/v1/shell_exec_pb";
+import type { WriteShellStdinArgs } from "../../../__generated__/agent/v1/write_shell_stdin_tool_pb";
 import {
   WriteShellStdinError,
   WriteShellStdinResult,
-} from "../../__generated__/agent/v1/write_shell_stdin_tool_pb";
-import type { Executor } from "../../vendor/agent-exec";
+} from "../../../__generated__/agent/v1/write_shell_stdin_tool_pb";
+import type { Executor } from "../../../vendor/agent-exec";
 
 export class StubBackgroundShellExecutor
   implements Executor<BackgroundShellSpawnArgs, BackgroundShellSpawnResult>

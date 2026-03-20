@@ -6,7 +6,7 @@
  * resolves the pending promise.
  */
 import type { ToolResultMessage } from "@mariozechner/pi-ai";
-import type { LiveEventChannel } from "./agent-stream-hook";
+import type { LiveEventChannel } from "../../provider/agent-stream-hook";
 
 // ─── Shell quoting ──────────────────────────────────────────────────
 

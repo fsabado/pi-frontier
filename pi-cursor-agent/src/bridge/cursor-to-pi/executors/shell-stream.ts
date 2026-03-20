@@ -1,20 +1,20 @@
 import type {
   ShellArgs,
   ShellStream,
-} from "../../__generated__/agent/v1/shell_exec_pb";
+} from "../../../__generated__/agent/v1/shell_exec_pb";
 import {
   ShellRejected,
   ShellStream as ShellStreamClass,
   ShellStreamExit,
   ShellStreamStdout,
-} from "../../__generated__/agent/v1/shell_exec_pb";
-import type { StreamExecutor } from "../../vendor/agent-exec";
+} from "../../../__generated__/agent/v1/shell_exec_pb";
+import type { StreamExecutor } from "../../../vendor/agent-exec";
+import { toolResultToText } from "../../shared/tool-result";
 import {
   decodeToolCallId,
   type PiToolContext,
 } from "../local-resource-provider/types";
 import { requestToolExecution } from "../tool-bridge";
-import { toolResultToText } from "../utils/tool-result";
 import { confirmIfDangerous } from "./shell";
 
 export class LocalShellStreamExecutor

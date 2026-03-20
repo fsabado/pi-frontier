@@ -6,7 +6,7 @@ import type { ToolResultMessage } from "@mariozechner/pi-ai";
 import type {
   GrepArgs,
   GrepResult,
-} from "../../__generated__/agent/v1/grep_exec_pb";
+} from "../../../__generated__/agent/v1/grep_exec_pb";
 import {
   GrepContentMatch,
   GrepContentResult,
@@ -18,17 +18,17 @@ import {
   GrepResult as GrepResultClass,
   GrepSuccess,
   GrepUnionResult,
-} from "../../__generated__/agent/v1/grep_exec_pb";
-import type { Executor } from "../../vendor/agent-exec";
+} from "../../../__generated__/agent/v1/grep_exec_pb";
+import type { Executor } from "../../../vendor/agent-exec";
+import {
+  toolResultDetailBoolean,
+  toolResultToText,
+} from "../../shared/tool-result";
 import {
   decodeToolCallId,
   type PiToolContext,
 } from "../local-resource-provider/types";
 import { requestToolExecution, shellQuote } from "../tool-bridge";
-import {
-  toolResultDetailBoolean,
-  toolResultToText,
-} from "../utils/tool-result";
 
 type SearchBackend = "rg" | "grep";
 
@@ -209,7 +209,9 @@ function getPathEnv(): string {
 
 function getManagedBinDir(): string {
   const agentDir = process.env["PI_CODING_AGENT_DIR"];
-  const baseDir = agentDir ? untildify(agentDir) : nodePath.join(homedir(), ".pi", "agent");
+  const baseDir = agentDir
+    ? untildify(agentDir)
+    : nodePath.join(homedir(), ".pi", "agent");
   return nodePath.join(baseDir, "bin");
 }
 
@@ -225,7 +227,13 @@ function getEffectiveSearchPathDirs(): string[] {
 
 function getCommandCandidates(commandName: string): string[] {
   if (process.platform !== "win32") return [commandName];
-  return [commandName, `${commandName}.exe`, `${commandName}.cmd`, `${commandName}.bat`, `${commandName}.com`];
+  return [
+    commandName,
+    `${commandName}.exe`,
+    `${commandName}.cmd`,
+    `${commandName}.bat`,
+    `${commandName}.com`,
+  ];
 }
 
 async function commandExistsInDir(

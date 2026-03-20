@@ -2,18 +2,21 @@ import type { ToolResultMessage } from "@mariozechner/pi-ai";
 import type {
   ReadArgs,
   ReadResult,
-} from "../../__generated__/agent/v1/read_exec_pb";
+} from "../../../__generated__/agent/v1/read_exec_pb";
 import {
   ReadError,
   ReadRejected,
   ReadResult as ReadResultClass,
   ReadSuccess,
-} from "../../__generated__/agent/v1/read_exec_pb";
-import type { Executor } from "../../vendor/agent-exec";
+} from "../../../__generated__/agent/v1/read_exec_pb";
+import type { Executor } from "../../../vendor/agent-exec";
+import {
+  toolResultToText,
+  toolResultWasTruncated,
+} from "../../shared/tool-result";
 import type { PiToolContext } from "../local-resource-provider/types";
 import { decodeToolCallId } from "../local-resource-provider/types";
 import { requestToolExecution } from "../tool-bridge";
-import { toolResultToText, toolResultWasTruncated } from "../utils/tool-result";
 
 export function buildReadResultFromToolResult(
   path: string,

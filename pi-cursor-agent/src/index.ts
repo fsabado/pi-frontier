@@ -9,16 +9,19 @@ import type {
 } from "@mariozechner/pi-coding-agent";
 import AiService from "./api/ai-service";
 import Auth from "./api/auth";
+import { resolveToolResult } from "./bridge/cursor-to-pi/tool-bridge";
 import AuthManager from "./lib/auth";
 import {
   CURSOR_API_URL,
   CURSOR_CLIENT_VERSION,
   CURSOR_WEBSITE_URL,
 } from "./lib/env";
-import { restoreAgentStoreFromBranch } from "./pi/agent-store";
-import { getCachedPiModels, updateCachedPiModelsIfStale } from "./pi/model";
-import { resolveToolResult } from "./pi/tool-bridge";
-import { streamCursorAgent } from "./stream";
+import { restoreAgentStoreFromBranch } from "./provider/agent-store";
+import {
+  getCachedPiModels,
+  updateCachedPiModelsIfStale,
+} from "./provider/models";
+import { streamCursorAgent } from "./provider/stream";
 
 const auth = new AuthManager(new Auth(CURSOR_API_URL), CURSOR_WEBSITE_URL);
 

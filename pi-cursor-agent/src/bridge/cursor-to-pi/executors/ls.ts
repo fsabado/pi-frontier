@@ -1,29 +1,37 @@
 import type { ToolResultMessage } from "@mariozechner/pi-ai";
-import type { LsArgs, LsResult } from "../../__generated__/agent/v1/ls_exec_pb";
+import type {
+  LsArgs,
+  LsResult,
+} from "../../../__generated__/agent/v1/ls_exec_pb";
 import {
   LsError,
   LsResult as LsResultClass,
   LsSuccess,
-} from "../../__generated__/agent/v1/ls_exec_pb";
+} from "../../../__generated__/agent/v1/ls_exec_pb";
 import {
   LsDirectoryTreeNode,
   LsDirectoryTreeNode_File,
-} from "../../__generated__/agent/v1/selected_context_pb";
-import type { Executor } from "../../vendor/agent-exec";
-import { resolvePath } from "../../vendor/local-exec";
+} from "../../../__generated__/agent/v1/selected_context_pb";
+import type { Executor } from "../../../vendor/agent-exec";
+import { resolvePath } from "../../../vendor/local-exec";
+import {
+  toolResultToText,
+  toolResultWasTruncated,
+} from "../../shared/tool-result";
 import {
   decodeToolCallId,
   type PiToolContext,
 } from "../local-resource-provider/types";
 import { requestToolExecution, shellQuote } from "../tool-bridge";
-import { toolResultToText, toolResultWasTruncated } from "../utils/tool-result";
 
 export function buildLsCommand(pathArg: string): string {
   return `ls -A1p -- ${shellQuote(pathArg)}`;
 }
 
 function isLsNoticeLine(line: string): boolean {
-  return line.startsWith("[Showing lines ") || line.startsWith("[Showing last ");
+  return (
+    line.startsWith("[Showing lines ") || line.startsWith("[Showing last ")
+  );
 }
 
 function parseLsText(text: string): { dirs: string[]; files: string[] } {

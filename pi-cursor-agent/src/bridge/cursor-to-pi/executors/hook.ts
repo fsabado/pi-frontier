@@ -1,17 +1,17 @@
 import type {
   ExecuteHookArgs,
   ExecuteHookResult,
-} from "../../__generated__/agent/v1/exec_pb";
+} from "../../../__generated__/agent/v1/exec_pb";
 import {
   ExecuteHookResponse,
   ExecuteHookResult as ExecuteHookResultClass,
   PreCompactRequestResponse,
-} from "../../__generated__/agent/v1/exec_pb";
+} from "../../../__generated__/agent/v1/exec_pb";
 import {
   SubagentStartRequestResponse,
   SubagentStopRequestResponse,
-} from "../../__generated__/agent/v1/subagents_pb";
-import type { Executor } from "../../vendor/agent-exec";
+} from "../../../__generated__/agent/v1/subagents_pb";
+import type { Executor } from "../../../vendor/agent-exec";
 
 export class LocalHookExecutorImpl
   implements Executor<ExecuteHookArgs, ExecuteHookResult>

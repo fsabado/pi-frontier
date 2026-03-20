@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
+import type { ToolResultMessage } from "@mariozechner/pi-ai";
 import {
   buildLsCommand,
   buildLsResultFromToolResult,
-} from "../../src/pi/executors/ls.js";
-import type { ToolResultMessage } from "@mariozechner/pi-ai";
+} from "../../../src/bridge/cursor-to-pi/executors/ls.js";
 
 function createToolResult(text: string): ToolResultMessage {
   return {
@@ -27,7 +27,7 @@ test("buildLsCommand uses a simple ls command", () => {
 
 test("buildLsResultFromToolResult parses ls stdout snapshot", () => {
   const stdout = fs.readFileSync(
-    new URL("../fixtures/ls/basic.stdout.txt", import.meta.url),
+    new URL("../../fixtures/ls/basic.stdout.txt", import.meta.url),
     "utf8",
   );
 

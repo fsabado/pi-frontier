@@ -5,7 +5,9 @@ export interface PiToolContext {
   readonly signal?: AbortSignal;
   getActiveTools(): Set<string>;
   getCtx(): ExtensionContext | null;
-  getChannel?(): import("../agent-stream-hook").LiveEventChannel | null;
+  getChannel?():
+    | import("../../../provider/agent-stream-hook").LiveEventChannel
+    | null;
 }
 
 export function decodeToolCallId(toolCallId: string | undefined): string {

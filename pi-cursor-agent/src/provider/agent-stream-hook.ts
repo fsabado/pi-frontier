@@ -4,7 +4,7 @@
  * Cursor updates are pushed into a LiveEventChannel and consumed across
  * continuation turns.
  */
-import type { ToolExecRequest } from "./tool-bridge";
+import type { ToolExecRequest } from "../bridge/cursor-to-pi/tool-bridge";
 
 // ─── Live event channel ─────────────────────────────────────────────
 

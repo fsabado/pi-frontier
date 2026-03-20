@@ -14,42 +14,48 @@ import type {
   ExtensionAPI,
   ExtensionContext,
 } from "@mariozechner/pi-coding-agent";
-import type { ConversationStateStructure } from "./__generated__/agent/v1/agent_pb";
+import type { ConversationStateStructure } from "../__generated__/agent/v1/agent_pb";
 import {
   AskQuestionRejected,
   AskQuestionResult,
-} from "./__generated__/agent/v1/ask_question_tool_pb";
-import AgentService from "./api/agent-service";
-import { CURSOR_API_URL, CURSOR_CLIENT_VERSION } from "./lib/env";
+} from "../__generated__/agent/v1/ask_question_tool_pb";
+import AgentService from "../api/agent-service";
+import {
+  LocalResourceProvider,
+  type PiToolContext,
+} from "../bridge/cursor-to-pi/local-resource-provider";
+import {
+  rejectAllPending,
+  type ToolExecRequest,
+} from "../bridge/cursor-to-pi/tool-bridge";
+import {
+  buildRunRequest,
+  getContextTools,
+} from "../bridge/pi-to-cursor/request-builder";
+import { CURSOR_API_URL, CURSOR_CLIENT_VERSION } from "../lib/env";
+import {
+  AgentConnectClient,
+  type CheckpointHandler,
+  type InteractionListener,
+} from "../vendor/agent-client";
+import type {
+  CoreInteractionQuery,
+  CoreInteractionResponse,
+  CoreInteractionUpdate,
+} from "../vendor/agent-core";
 import {
   CURSOR_STATE_ENTRY_TYPE,
   ensureAgentStore,
   persistAgentStore,
-} from "./pi/agent-store";
+} from "./agent-store";
 import {
   type ContentEvent,
   deleteLiveSession,
   getLiveSession,
   LiveEventChannel,
   setLiveSession,
-} from "./pi/agent-stream-hook";
-import {
-  LocalResourceProvider,
-  type PiToolContext,
-} from "./pi/local-resource-provider";
-import { toCursorId } from "./pi/model-mapping";
-import { buildRunRequest, getContextTools } from "./pi/request-builder";
-import { rejectAllPending, type ToolExecRequest } from "./pi/tool-bridge";
-import {
-  AgentConnectClient,
-  type CheckpointHandler,
-  type InteractionListener,
-} from "./vendor/agent-client";
-import type {
-  CoreInteractionQuery,
-  CoreInteractionResponse,
-  CoreInteractionUpdate,
-} from "./vendor/agent-core";
+} from "./agent-stream-hook";
+import { toCursorId } from "./model-mapping";
 
 // ─── Helpers ────────────────────────────────────────────────────────
 

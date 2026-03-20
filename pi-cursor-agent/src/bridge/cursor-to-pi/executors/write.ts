@@ -2,20 +2,20 @@ import type { ToolResultMessage } from "@mariozechner/pi-ai";
 import type {
   WriteArgs,
   WriteResult,
-} from "../../__generated__/agent/v1/write_exec_pb";
+} from "../../../__generated__/agent/v1/write_exec_pb";
 import {
   WriteError,
   WriteRejected,
   WriteResult as WriteResultClass,
   WriteSuccess,
-} from "../../__generated__/agent/v1/write_exec_pb";
-import type { Executor } from "../../vendor/agent-exec";
+} from "../../../__generated__/agent/v1/write_exec_pb";
+import type { Executor } from "../../../vendor/agent-exec";
+import { toolResultToText } from "../../shared/tool-result";
 import {
   decodeToolCallId,
   type PiToolContext,
 } from "../local-resource-provider/types";
 import { requestToolExecution, shellQuote } from "../tool-bridge";
-import { toolResultToText } from "../utils/tool-result";
 
 function buildWriteResultFromToolResult(
   args: {

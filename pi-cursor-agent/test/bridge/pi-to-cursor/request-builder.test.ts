@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { Context, Message, Model } from "@mariozechner/pi-ai";
-import { ConversationStateStructure } from "../../src/__generated__/agent/v1/agent_pb.js";
-import { buildRunRequest } from "../../src/pi/request-builder.js";
+import { ConversationStateStructure } from "../../../src/__generated__/agent/v1/agent_pb.js";
+import { buildRunRequest } from "../../../src/bridge/pi-to-cursor/request-builder.js";
 import {
   getBlobId,
   InMemoryBlobStore,
-} from "../../src/vendor/agent-kv/index.js";
+} from "../../../src/vendor/agent-kv/index.js";
 
 function createParams(options?: {
   messages?: Message[];

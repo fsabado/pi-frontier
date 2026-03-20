@@ -21,14 +21,14 @@ import {
   ModelDetails,
   UserMessage,
   UserMessageAction,
-} from "../__generated__/agent/v1/agent_pb";
+} from "../../__generated__/agent/v1/agent_pb";
 import {
   type McpToolDefinition,
   McpToolDefinition as McpToolDefinitionClass,
   McpTools,
-} from "../__generated__/agent/v1/mcp_pb";
-import { type BlobStore, getBlobId } from "../vendor/agent-kv";
-import { toolResultToText } from "./utils/tool-result";
+} from "../../__generated__/agent/v1/mcp_pb";
+import { type BlobStore, getBlobId } from "../../vendor/agent-kv";
+import { toolResultToText } from "../shared/tool-result";
 
 const CURSOR_NATIVE_TOOL_NAMES = new Set([
   "bash",

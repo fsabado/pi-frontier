@@ -1,4 +1,4 @@
-import type { McpToolDefinition } from "../../__generated__/agent/v1/mcp_pb";
+import type { McpToolDefinition } from "../../../__generated__/agent/v1/mcp_pb";
 import {
   backgroundShellResource,
   computerUseResource,
@@ -19,7 +19,7 @@ import {
   shellStreamResource,
   writeResource,
   writeShellStdinResource,
-} from "../../vendor/agent-exec";
+} from "../../../vendor/agent-exec";
 import { LocalDeleteExecutor } from "../executors/delete";
 import { LocalGrepExecutor } from "../executors/grep";
 import { LocalHookExecutorImpl } from "../executors/hook";

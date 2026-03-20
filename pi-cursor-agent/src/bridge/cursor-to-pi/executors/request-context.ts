@@ -1,22 +1,22 @@
 import os from "node:os";
-import type { McpToolDefinition } from "../../__generated__/agent/v1/mcp_pb";
-import { GitRepoInfo } from "../../__generated__/agent/v1/repo_pb";
-import type { RequestContextArgs } from "../../__generated__/agent/v1/request_context_exec_pb";
+import type { McpToolDefinition } from "../../../__generated__/agent/v1/mcp_pb";
+import { GitRepoInfo } from "../../../__generated__/agent/v1/repo_pb";
+import type { RequestContextArgs } from "../../../__generated__/agent/v1/request_context_exec_pb";
 import {
   RequestContext,
   RequestContextEnv,
   RequestContextError,
   RequestContextResult,
   RequestContextSuccess,
-} from "../../__generated__/agent/v1/request_context_exec_pb";
-import type { Executor } from "../../vendor/agent-exec";
+} from "../../../__generated__/agent/v1/request_context_exec_pb";
+import type { Executor } from "../../../vendor/agent-exec";
 import {
   getGitBranch,
   getGitRemoteUrl,
   getGitRepoPath,
   getGitStatus,
   LocalGitExecutor,
-} from "../../vendor/local-exec";
+} from "../../../vendor/local-exec";
 
 export class LocalRequestContextExecutor
   implements Executor<RequestContextArgs, RequestContextResult>

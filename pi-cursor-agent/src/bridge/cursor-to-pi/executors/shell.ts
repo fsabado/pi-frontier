@@ -3,20 +3,20 @@ import type { ExtensionContext } from "@mariozechner/pi-coding-agent";
 import type {
   ShellArgs,
   ShellResult,
-} from "../../__generated__/agent/v1/shell_exec_pb";
+} from "../../../__generated__/agent/v1/shell_exec_pb";
 import {
   ShellFailure,
   ShellRejected,
   ShellResult as ShellResultClass,
   ShellSuccess,
-} from "../../__generated__/agent/v1/shell_exec_pb";
-import type { Executor } from "../../vendor/agent-exec";
+} from "../../../__generated__/agent/v1/shell_exec_pb";
+import type { Executor } from "../../../vendor/agent-exec";
+import { toolResultToText } from "../../shared/tool-result";
 import {
   decodeToolCallId,
   type PiToolContext,
 } from "../local-resource-provider/types";
 import { requestToolExecution } from "../tool-bridge";
-import { toolResultToText } from "../utils/tool-result";
 
 export function buildShellResultFromToolResult(
   args: { command: string; workingDirectory: string },
