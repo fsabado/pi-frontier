@@ -12,7 +12,7 @@ interface StoreEntry {
   jsonStore: JsonBlobStoreWithMetadata;
 }
 
-const sessionStores = new Map<string, StoreEntry>();
+let sessionStores = new Map<string, StoreEntry>();
 
 export const ensureAgentStore = async (
   baseDir: string,
@@ -69,4 +69,18 @@ export const applySnapshotToStore = async (
   if (latestRootBlobId.length > 0) {
     await entry.store.resetFromDb(null);
   }
+};
+
+export const deleteAgentStore = (sessionId: string): boolean => {
+  return sessionStores.delete(sessionId);
+};
+
+export const hasAgentStore = (sessionId: string): boolean => {
+  return sessionStores.has(sessionId);
+};
+
+export const retainOnlyAgentStore = (sessionId: string | null): void => {
+  const entry = sessionId ? sessionStores.get(sessionId) : undefined;
+  sessionStores =
+    sessionId && entry ? new Map([[sessionId, entry]]) : new Map();
 };

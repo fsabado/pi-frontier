@@ -51,11 +51,12 @@ export interface LiveSession {
   channel: LiveEventChannel;
   cursorRunPromise: Promise<void>;
   flushSessionState: () => Promise<void>;
+  abort: (reason?: string) => void;
   startTime: number;
   firstTokenTime?: number;
 }
 
-const liveSessions = new Map<string, LiveSession>();
+let liveSessions = new Map<string, LiveSession>();
 
 export function setLiveSession(sessionId: string, session: LiveSession): void {
   liveSessions.set(sessionId, session);
@@ -67,4 +68,15 @@ export function getLiveSession(sessionId: string): LiveSession | undefined {
 
 export function deleteLiveSession(sessionId: string): void {
   liveSessions.delete(sessionId);
+}
+
+export function retainOnlyLiveSession(sessionId: string | null): void {
+  const retained = sessionId ? liveSessions.get(sessionId) : undefined;
+  for (const [id, session] of liveSessions) {
+    if (id !== sessionId) {
+      session.abort("Session ended");
+    }
+  }
+  liveSessions =
+    sessionId && retained ? new Map([[sessionId, retained]]) : new Map();
 }

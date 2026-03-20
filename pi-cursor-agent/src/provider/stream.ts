@@ -46,6 +46,7 @@ import type {
 import {
   CURSOR_STATE_ENTRY_TYPE,
   ensureAgentStore,
+  evictAgentStore,
   persistAgentStore,
 } from "./agent-store";
 import {
@@ -53,6 +54,7 @@ import {
   deleteLiveSession,
   getLiveSession,
   LiveEventChannel,
+  type LiveSession,
   setLiveSession,
 } from "./agent-stream-hook";
 import { toCursorId } from "./model-mapping";
@@ -363,9 +365,10 @@ export function streamCursorAgent(
       stopReason: "stop",
       timestamp: Date.now(),
     };
+    let session: LiveSession | undefined;
 
     try {
-      let session = getLiveSession(sessionId);
+      session = getLiveSession(sessionId);
 
       if (!session) {
         const apiKey = options?.apiKey;
@@ -380,10 +383,14 @@ export function streamCursorAgent(
         const requestContextTools = getContextTools(context);
 
         const channel = new LiveEventChannel(sessionId);
+        const sessionAbortController = new AbortController();
+        const sessionSignal = options?.signal
+          ? AbortSignal.any([options.signal, sessionAbortController.signal])
+          : sessionAbortController.signal;
 
         const piToolCtx: PiToolContext = {
           cwd,
-          ...(options?.signal ? { signal: options.signal } : {}),
+          signal: sessionSignal,
           getActiveTools: () => new Set(pi.getActiveTools()),
           getCtx,
           getChannel: () => channel,
@@ -468,8 +475,8 @@ export function streamCursorAgent(
           resources,
           blobStore,
           checkpointHandler,
+          signal: sessionSignal,
         };
-        if (options?.signal) runOptions.signal = options.signal;
 
         const cursorRunPromise = connectClient
           .run(initialRequest, runOptions)
@@ -481,10 +488,20 @@ export function streamCursorAgent(
           channel,
           cursorRunPromise,
           flushSessionState,
+          abort: (reason) => {
+            sessionAbortController.abort(
+              reason ? new Error(reason) : new Error("Session ended"),
+            );
+          },
           startTime: Date.now(),
         };
         setLiveSession(sessionId, session);
       }
+
+      if (!session) {
+        throw new Error(`Failed to initialize live session: ${sessionId}`);
+      }
+      const liveSession = session;
 
       const usageState = { sawTokenDelta: false };
       let firstTokenTimeCaptured = false;
@@ -492,23 +509,23 @@ export function streamCursorAgent(
       stream.push({ type: "start", partial: output });
 
       const result = await consumeUntilBoundary(
-        session.channel,
+        liveSession.channel,
         output,
         stream,
         usageState,
         () => {
           if (!firstTokenTimeCaptured) {
             firstTokenTimeCaptured = true;
-            if (!session?.firstTokenTime) {
-              session.firstTokenTime = Date.now();
+            if (!liveSession.firstTokenTime) {
+              liveSession.firstTokenTime = Date.now();
             }
           }
         },
       );
 
-      output.duration = Date.now() - session.startTime;
-      if (session.firstTokenTime) {
-        output.ttft = session.firstTokenTime - session.startTime;
+      output.duration = Date.now() - liveSession.startTime;
+      if (liveSession.firstTokenTime) {
+        output.ttft = liveSession.firstTokenTime - liveSession.startTime;
       }
       output.usage.cost = {
         input: 0,
@@ -542,11 +559,14 @@ export function streamCursorAgent(
           timestamp: output.timestamp,
           blocks: serializeContentBlocks(output.content),
         });
+        let flushed = false;
         try {
           await session.flushSessionState();
+          flushed = true;
         } catch {}
         deleteLiveSession(sessionId);
         await session.cursorRunPromise.catch(() => {});
+        await evictAgentStore(sessionId, { persist: !flushed }).catch(() => {});
         stream.push({ type: "done", reason: "stop", message: output });
       }
       stream.end();
@@ -554,11 +574,20 @@ export function streamCursorAgent(
       output.stopReason = options?.signal?.aborted ? "aborted" : "error";
       output.errorMessage =
         error instanceof Error ? error.message : String(error);
+      let flushed = false;
+      try {
+        if (session) {
+          await session.flushSessionState();
+          flushed = true;
+          await session.cursorRunPromise.catch(() => {});
+        }
+      } catch {}
       deleteLiveSession(sessionId);
       rejectPendingForSession(
         sessionId,
         `Stream error: ${output.errorMessage}`,
       );
+      await evictAgentStore(sessionId, { persist: !flushed }).catch(() => {});
       stream.push({
         type: "error",
         reason: output.stopReason === "aborted" ? "aborted" : "error",

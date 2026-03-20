@@ -9,10 +9,7 @@ import type {
 } from "@mariozechner/pi-coding-agent";
 import AiService from "./api/ai-service";
 import Auth from "./api/auth";
-import {
-  rejectPendingForSession,
-  resolveToolResult,
-} from "./bridge/cursor-to-pi/tool-bridge";
+import { resolveToolResult } from "./bridge/cursor-to-pi/tool-bridge";
 import AuthManager from "./lib/auth";
 import {
   CURSOR_API_URL,
@@ -20,11 +17,14 @@ import {
   CURSOR_WEBSITE_URL,
 } from "./lib/env";
 import { restoreAgentStoreFromBranch } from "./provider/agent-store";
-import { deleteLiveSession } from "./provider/agent-stream-hook";
 import {
   getCachedPiModels,
   updateCachedPiModelsIfStale,
 } from "./provider/models";
+import {
+  retainOnlyActiveSessionMemory,
+  terminateSession,
+} from "./provider/session-lifecycle";
 import { createStateStore } from "./provider/state";
 import { streamCursorAgent } from "./provider/stream";
 
@@ -80,18 +80,18 @@ export default (pi: ExtensionAPI) => {
     pi.appendEntry(type, data);
   });
 
-  const cleanupPreviousSession = (newSessionId: string) => {
-    if (currentSessionId && currentSessionId !== newSessionId) {
-      deleteLiveSession(currentSessionId);
-      rejectPendingForSession(currentSessionId, "Session ended");
-    }
+  const cleanupPreviousSession = async (newSessionId: string) => {
+    const previousSessionId = currentSessionId;
     currentSessionId = newSessionId;
+    if (previousSessionId && previousSessionId !== newSessionId) {
+      await terminateSession(previousSessionId, "Session ended");
+    }
   };
 
   const refreshBranchState = async (ctx: ExtensionContext) => {
     lastCtx = ctx;
     const sessionId = ctx.sessionManager.getSessionId();
-    cleanupPreviousSession(sessionId);
+    await cleanupPreviousSession(sessionId);
     state.resetFromContext(ctx);
     try {
       await restoreAgentStoreFromBranch(
@@ -99,6 +99,7 @@ export default (pi: ExtensionAPI) => {
         ctx.sessionManager.getBranch(),
       );
     } catch {}
+    retainOnlyActiveSessionMemory(sessionId);
   };
 
   pi.on("before_agent_start", async (_, ctx) => {

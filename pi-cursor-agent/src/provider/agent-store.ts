@@ -2,6 +2,7 @@ import type { SessionEntry } from "@mariozechner/pi-coding-agent";
 import { ConversationStateStructure } from "../__generated__/agent/v1/agent_pb";
 import {
   applySnapshotToStore,
+  deleteAgentStore as deleteStore,
   ensureAgentStore as ensureStore,
   persistAgentStore as persistStore,
 } from "../lib/agent-store";
@@ -77,6 +78,19 @@ export const persistAgentStore = async (
   } catch {}
 
   return snapshot;
+};
+
+export const evictAgentStore = async (
+  sessionId: string,
+  options?: { persist?: boolean },
+): Promise<void> => {
+  try {
+    if (options?.persist !== false) {
+      await persistStore(PI_CURSOR_AGENT_CACHE_DIR, sessionId);
+    }
+  } finally {
+    deleteStore(sessionId);
+  }
 };
 
 export const restoreAgentStoreFromBranch = async (

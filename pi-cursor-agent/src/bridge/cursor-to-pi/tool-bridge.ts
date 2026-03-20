@@ -56,3 +56,15 @@ export function rejectPendingForSession(
     }
   }
 }
+
+export function rejectPendingExceptSession(
+  sessionId: string | null,
+  reason: string,
+): void {
+  for (const [id, pending] of pendingResults) {
+    if (sessionId === null || pending.sessionId !== sessionId) {
+      pending.reject(new Error(reason));
+      pendingResults.delete(id);
+    }
+  }
+}

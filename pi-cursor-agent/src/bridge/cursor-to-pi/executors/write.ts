@@ -143,7 +143,11 @@ export class LocalWriteExecutor implements Executor<WriteArgs, WriteResult> {
       return buildWriteRejectedResult(args.path, "Tool not available");
     }
 
-    const base64 = Buffer.from(args.fileBytes!).toString("base64");
+    if (!args.fileBytes || args.fileBytes.length === 0) {
+      return buildWriteRejectedResult(args.path, "No file bytes provided");
+    }
+
+    const base64 = Buffer.from(args.fileBytes).toString("base64");
     const command = buildBase64WriteCommand(args.path, base64);
 
     const piResult = await requestToolExecution(
