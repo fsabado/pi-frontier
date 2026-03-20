@@ -1,12 +1,4 @@
-/**
- * Shared live channel/session state for Cursor streaming.
- *
- * Cursor updates are pushed into a LiveEventChannel and consumed across
- * continuation turns.
- */
 import type { ToolExecRequest } from "../bridge/cursor-to-pi/tool-bridge";
-
-// ─── Live event channel ─────────────────────────────────────────────
 
 export type ChannelEvent =
   | { kind: "content"; data: ContentEvent }
@@ -49,8 +41,6 @@ export class LiveEventChannel {
     for (const resolve of w) resolve();
   }
 }
-
-// ─── Live session state ─────────────────────────────────────────────
 
 export interface LiveSession {
   channel: LiveEventChannel;

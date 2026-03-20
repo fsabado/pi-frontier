@@ -21,6 +21,7 @@ import {
   getCachedPiModels,
   updateCachedPiModelsIfStale,
 } from "./provider/models";
+import { createStateStore } from "./provider/state";
 import { streamCursorAgent } from "./provider/stream";
 
 const auth = new AuthManager(new Auth(CURSOR_API_URL), CURSOR_WEBSITE_URL);
@@ -70,14 +71,19 @@ export default (pi: ExtensionAPI) => {
   let lastCtx: ExtensionContext | null = null;
   const getCtx = () => lastCtx;
 
+  const state = createStateStore((type, data) => {
+    pi.appendEntry(type, data);
+  });
+
   const refreshBranchState = async (ctx: ExtensionContext) => {
     lastCtx = ctx;
+    state.resetFromContext(ctx);
     try {
       await restoreAgentStoreFromBranch(
         ctx.sessionManager.getSessionId(),
         ctx.sessionManager.getBranch(),
       );
-    } catch {} // ignore
+    } catch {}
   };
 
   pi.on("before_agent_start", async (_, ctx) => {
@@ -126,7 +132,7 @@ export default (pi: ExtensionAPI) => {
     apiKey: "CURSOR_ACCESS_TOKEN",
     api: "cursor-agent" as unknown as Api,
     streamSimple: (model, context, options) =>
-      streamCursorAgent(pi, getCtx, model, context, options),
+      streamCursorAgent(pi, getCtx, state, model, context, options),
     models: getCachedPiModels(),
     oauth: {
       name: "Cursor",

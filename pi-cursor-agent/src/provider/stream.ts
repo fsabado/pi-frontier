@@ -56,8 +56,7 @@ import {
   setLiveSession,
 } from "./agent-stream-hook";
 import { toCursorId } from "./model-mapping";
-
-// ─── Helpers ────────────────────────────────────────────────────────
+import type { CursorStateStore } from "./state";
 
 function createCheckpointHandler(
   handler: (checkpoint: ConversationStateStructure) => void,
@@ -130,8 +129,6 @@ type CursorAssistantMessage = AssistantMessage & {
   duration?: number;
   ttft?: number;
 };
-
-// ─── Content streaming helpers ──────────────────────────────────────
 
 interface LiveContentState {
   currentText: TextContent | null;
@@ -231,9 +228,6 @@ function finalizeAllContent(
   finalizeThinking(state, output, stream);
 }
 
-// ─── Consume channel ────────────────────────────────────────────────
-
-/** Stream channel events until a tool boundary or completion. */
 async function consumeUntilBoundary(
   channel: LiveEventChannel,
   output: CursorAssistantMessage,
@@ -265,7 +259,6 @@ async function consumeUntilBoundary(
       }
 
       case "tool-exec-request": {
-        // Break immediately so pi can run the requested tool.
         finalizeAllContent(contentState, output, stream);
         return { reason: "toolUse", tools: [event.request] };
       }
@@ -285,13 +278,42 @@ async function consumeUntilBoundary(
   }
 }
 
-/** Emit pi toolCall blocks for pending exec requests. */
+function serializeContentBlocks(
+  content: CursorAssistantMessage["content"],
+): unknown[] {
+  return content.map((block) => {
+    switch (block.type) {
+      case "text":
+        return { type: "text", text: block.text };
+      case "thinking":
+        return { type: "thinking", thinking: block.thinking };
+      case "toolCall":
+        return {
+          type: "toolCall",
+          id: block.id,
+          name: block.name,
+          arguments: block.arguments,
+        };
+      default:
+        return { type: (block as { type: string }).type };
+    }
+  });
+}
+
 function emitToolCalls(
   tools: ToolExecRequest[],
   output: CursorAssistantMessage,
   stream: AssistantMessageEventStream,
+  state: CursorStateStore,
 ): void {
   for (const request of tools) {
+    state.rememberToolCallMeta({
+      toolCallId: request.toolCallId,
+      piToolName: request.piToolName,
+      piToolArgs: request.piToolArgs,
+      assistantTimestamp: output.timestamp,
+    });
+
     const block: PiToolCall = {
       type: "toolCall",
       id: request.toolCallId,
@@ -310,11 +332,10 @@ function emitToolCalls(
   }
 }
 
-// ─── Main stream function ───────────────────────────────────────────
-
 export function streamCursorAgent(
   pi: ExtensionAPI,
   getCtx: () => ExtensionContext | null,
+  state: CursorStateStore,
   model: Model<Api>,
   context: Context,
   options?: SimpleStreamOptions,
@@ -343,11 +364,9 @@ export function streamCursorAgent(
     };
 
     try {
-      // Reuse the live session on continuation turns.
       let session = getLiveSession(sessionId);
 
       if (!session) {
-        // First turn: start Cursor in the background.
         const apiKey = options?.apiKey;
         if (!apiKey) {
           throw new Error(
@@ -395,7 +414,6 @@ export function streamCursorAgent(
           pi.appendEntry(CURSOR_STATE_ENTRY_TYPE, snapshot);
         };
 
-        // Forward Cursor interaction updates to the live channel.
         const handleInteractionUpdate = (update: CoreInteractionUpdate) => {
           switch (update.type) {
             case "text-delta":
@@ -450,7 +468,6 @@ export function streamCursorAgent(
         };
         if (options?.signal) runOptions.signal = options.signal;
 
-        // Start Cursor in the background.
         const cursorRunPromise = connectClient
           .run(initialRequest, runOptions)
           .then(() => channel.push({ kind: "cursor-done" }))
@@ -466,7 +483,6 @@ export function streamCursorAgent(
         setLiveSession(sessionId, session);
       }
 
-      // Consume until a tool boundary or completion.
       const usageState = { sawTokenDelta: false };
       let firstTokenTimeCaptured = false;
 
@@ -500,22 +516,32 @@ export function streamCursorAgent(
       };
 
       if (result.reason === "toolUse" && result.tools.length > 0) {
-        // Let pi execute the requested tools natively.
-        emitToolCalls(result.tools, output, stream);
+        emitToolCalls(result.tools, output, stream, state);
         output.stopReason = "toolUse";
+
+        state.rememberAssistantContent({
+          timestamp: output.timestamp,
+          blocks: serializeContentBlocks(output.content),
+        });
+        try {
+          await session.flushSessionState();
+        } catch {}
+
         stream.push({
           type: "done",
           reason: "toolUse",
           message: { ...output },
         });
       } else {
-        // Finalize the session.
         output.stopReason = "stop";
+
+        state.rememberAssistantContent({
+          timestamp: output.timestamp,
+          blocks: serializeContentBlocks(output.content),
+        });
         try {
           await session.flushSessionState();
-        } catch {
-          // ignore
-        }
+        } catch {}
         deleteLiveSession(sessionId);
         await session.cursorRunPromise.catch(() => {});
         stream.push({ type: "done", reason: "stop", message: output });
