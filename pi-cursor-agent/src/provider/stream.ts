@@ -25,7 +25,7 @@ import {
   type PiToolContext,
 } from "../bridge/cursor-to-pi/local-resource-provider";
 import {
-  rejectAllPending,
+  rejectPendingForSession,
   type ToolExecRequest,
 } from "../bridge/cursor-to-pi/tool-bridge";
 import {
@@ -379,7 +379,7 @@ export function streamCursorAgent(
         const cwd = getCtx()?.cwd ?? process.cwd();
         const requestContextTools = getContextTools(context);
 
-        const channel = new LiveEventChannel();
+        const channel = new LiveEventChannel(sessionId);
 
         const piToolCtx: PiToolContext = {
           cwd,
@@ -554,7 +554,10 @@ export function streamCursorAgent(
       output.errorMessage =
         error instanceof Error ? error.message : String(error);
       deleteLiveSession(sessionId);
-      rejectAllPending(`Stream error: ${output.errorMessage}`);
+      rejectPendingForSession(
+        sessionId,
+        `Stream error: ${output.errorMessage}`,
+      );
       stream.push({
         type: "error",
         reason: output.stopReason === "aborted" ? "aborted" : "error",

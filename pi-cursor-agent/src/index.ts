@@ -9,7 +9,10 @@ import type {
 } from "@mariozechner/pi-coding-agent";
 import AiService from "./api/ai-service";
 import Auth from "./api/auth";
-import { resolveToolResult } from "./bridge/cursor-to-pi/tool-bridge";
+import {
+  rejectPendingForSession,
+  resolveToolResult,
+} from "./bridge/cursor-to-pi/tool-bridge";
 import AuthManager from "./lib/auth";
 import {
   CURSOR_API_URL,
@@ -17,6 +20,7 @@ import {
   CURSOR_WEBSITE_URL,
 } from "./lib/env";
 import { restoreAgentStoreFromBranch } from "./provider/agent-store";
+import { deleteLiveSession } from "./provider/agent-stream-hook";
 import {
   getCachedPiModels,
   updateCachedPiModelsIfStale,
@@ -69,18 +73,29 @@ const refreshToken = async (
 
 export default (pi: ExtensionAPI) => {
   let lastCtx: ExtensionContext | null = null;
+  let currentSessionId: string | null = null;
   const getCtx = () => lastCtx;
 
   const state = createStateStore((type, data) => {
     pi.appendEntry(type, data);
   });
 
+  const cleanupPreviousSession = (newSessionId: string) => {
+    if (currentSessionId && currentSessionId !== newSessionId) {
+      deleteLiveSession(currentSessionId);
+      rejectPendingForSession(currentSessionId, "Session ended");
+    }
+    currentSessionId = newSessionId;
+  };
+
   const refreshBranchState = async (ctx: ExtensionContext) => {
     lastCtx = ctx;
+    const sessionId = ctx.sessionManager.getSessionId();
+    cleanupPreviousSession(sessionId);
     state.resetFromContext(ctx);
     try {
       await restoreAgentStoreFromBranch(
-        ctx.sessionManager.getSessionId(),
+        sessionId,
         ctx.sessionManager.getBranch(),
       );
     } catch {}

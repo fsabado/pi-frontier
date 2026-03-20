@@ -12,10 +12,15 @@ export interface ContentEvent {
 }
 
 export class LiveEventChannel {
+  readonly sessionId: string;
   private events: ChannelEvent[] = [];
   private cursor = 0;
   private done = false;
   private waiters: Array<() => void> = [];
+
+  constructor(sessionId: string) {
+    this.sessionId = sessionId;
+  }
 
   push(event: ChannelEvent): void {
     this.events.push(event);

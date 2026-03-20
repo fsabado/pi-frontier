@@ -13,6 +13,7 @@ export interface ToolExecRequest {
 }
 
 interface PendingResult {
+  sessionId: string;
   resolve: (result: ToolResultMessage) => void;
   reject: (error: Error) => void;
 }
@@ -24,7 +25,8 @@ export function requestToolExecution(
   request: ToolExecRequest,
 ): Promise<ToolResultMessage> {
   return new Promise<ToolResultMessage>((resolve, reject) => {
-    pendingResults.set(request.toolCallId, { resolve, reject });
+    const sessionId = channel?.sessionId ?? "";
+    pendingResults.set(request.toolCallId, { sessionId, resolve, reject });
 
     if (channel) {
       channel.push({ kind: "tool-exec-request", request });
@@ -43,9 +45,14 @@ export function resolveToolResult(result: ToolResultMessage): boolean {
   return true;
 }
 
-export function rejectAllPending(reason: string): void {
+export function rejectPendingForSession(
+  sessionId: string,
+  reason: string,
+): void {
   for (const [id, pending] of pendingResults) {
-    pending.reject(new Error(reason));
-    pendingResults.delete(id);
+    if (pending.sessionId === sessionId) {
+      pending.reject(new Error(reason));
+      pendingResults.delete(id);
+    }
   }
 }
