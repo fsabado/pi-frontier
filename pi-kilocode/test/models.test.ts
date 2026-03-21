@@ -10,9 +10,17 @@ test("filterFreeModels keeps only models with isFree=true", () => {
       created: 1,
       description: "Paid",
       context_length: 1000,
-      architecture: { input_modalities: ["text"], output_modalities: ["text"], tokenizer: "Other" },
+      architecture: {
+        input_modalities: ["text"],
+        output_modalities: ["text"],
+        tokenizer: "Other",
+      },
       pricing: { prompt: "0.1", completion: "0.2" },
-      top_provider: { is_moderated: false, context_length: 1000, max_completion_tokens: 100 },
+      top_provider: {
+        is_moderated: false,
+        context_length: 1000,
+        max_completion_tokens: 100,
+      },
       supported_parameters: [],
       isFree: false,
     },
@@ -22,15 +30,26 @@ test("filterFreeModels keeps only models with isFree=true", () => {
       created: 2,
       description: "Free",
       context_length: 1000,
-      architecture: { input_modalities: ["text"], output_modalities: ["text"], tokenizer: "Other" },
+      architecture: {
+        input_modalities: ["text"],
+        output_modalities: ["text"],
+        tokenizer: "Other",
+      },
       pricing: { prompt: "0", completion: "0" },
-      top_provider: { is_moderated: false, context_length: 1000, max_completion_tokens: 100 },
+      top_provider: {
+        is_moderated: false,
+        context_length: 1000,
+        max_completion_tokens: 100,
+      },
       supported_parameters: [],
       isFree: true,
     },
-  ] as any);
+  ] satisfies Parameters<typeof filterFreeModels>[0]);
 
-  assert.deepEqual(filtered.map((model) => model.id), ["demo/free"]);
+  assert.deepEqual(
+    filtered.map((model) => model.id),
+    ["demo/free"],
+  );
 });
 
 test("convertToPiModels drops image-only models and maps capabilities/pricing", () => {
@@ -38,8 +57,14 @@ test("convertToPiModels drops image-only models and maps capabilities/pricing", 
     {
       id: "demo/text-and-image-input:free",
       name: "Vision model",
+      created: 1,
+      description: "Vision model",
       context_length: 128000,
-      top_provider: { max_completion_tokens: 12000 },
+      top_provider: {
+        is_moderated: false,
+        context_length: 128000,
+        max_completion_tokens: 12000,
+      },
       supported_parameters: ["tools", "reasoning"],
       pricing: {
         prompt: "0.0000015",
@@ -50,18 +75,34 @@ test("convertToPiModels drops image-only models and maps capabilities/pricing", 
       architecture: {
         input_modalities: ["text", "image"],
         output_modalities: ["text"],
+        tokenizer: "Other",
       },
+      isFree: true,
     },
     {
       id: "demo/image-only:free",
       name: "Image only",
+      created: 2,
+      description: "Image only",
       context_length: 128000,
+      top_provider: {
+        is_moderated: false,
+        context_length: 128000,
+        max_completion_tokens: 12000,
+      },
+      supported_parameters: [],
+      pricing: {
+        prompt: "0",
+        completion: "0",
+      },
       architecture: {
         input_modalities: ["text"],
         output_modalities: ["image"],
+        tokenizer: "Other",
       },
+      isFree: true,
     },
-  ] as any);
+  ] satisfies Parameters<typeof convertToPiModels>[0]);
 
   assert.equal(converted.length, 1);
 

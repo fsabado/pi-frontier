@@ -2,12 +2,16 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import registerKilocodeProvider from "../src/index";
 import {
   KILO_GATEWAY_BASE_URL,
   PI_KILOCODE_MODELS_CACHE_FILE,
 } from "../src/lib/env";
-import { getCachedPiModels, resetPiKilocodeModelCacheForTests } from "../src/provider/models";
+import {
+  getCachedPiModels,
+  resetPiKilocodeModelCacheForTests,
+} from "../src/provider/models";
 
 type RegisteredProviderConfig = {
   baseUrl: string;
@@ -22,15 +26,23 @@ type RegisteredProviderConfig = {
     getApiKey: (...args: unknown[]) => string;
     modifyModels?: (...args: unknown[]) => unknown;
   };
-  models: Array<{ id: string; name: string; cost: { input: number; output: number } }>;
+  models: Array<{
+    id: string;
+    name: string;
+    cost: { input: number; output: number };
+  }>;
 };
 
 function createMockPi() {
-  const providerCalls: Array<{ name: string; config: RegisteredProviderConfig }> = [];
-  const handlers = new Map<string, Array<(...args: any[]) => any>>();
+  const providerCalls: Array<{
+    name: string;
+    config: RegisteredProviderConfig;
+  }> = [];
+  type EventHandler = (...args: unknown[]) => unknown;
+  const handlers = new Map<string, EventHandler[]>();
 
   const api = {
-    on(event: string, handler: (...args: any[]) => any) {
+    on(event: string, handler: EventHandler) {
       const list = handlers.get(event) ?? [];
       list.push(handler);
       handlers.set(event, list);
@@ -40,14 +52,16 @@ function createMockPi() {
     },
   };
 
-  return { api: api as any, providerCalls, handlers };
+  return { api: api as unknown as ExtensionAPI, providerCalls, handlers };
 }
 
 test("registers kilocode provider once and refreshes cache from live raw response using only free models on demand", async (t) => {
   resetPiKilocodeModelCacheForTests();
 
   const hadCache = fs.existsSync(PI_KILOCODE_MODELS_CACHE_FILE);
-  const originalCache = hadCache ? fs.readFileSync(PI_KILOCODE_MODELS_CACHE_FILE, "utf8") : undefined;
+  const originalCache = hadCache
+    ? fs.readFileSync(PI_KILOCODE_MODELS_CACHE_FILE, "utf8")
+    : undefined;
   if (hadCache) {
     fs.rmSync(PI_KILOCODE_MODELS_CACHE_FILE, { force: true });
   }
@@ -57,7 +71,9 @@ test("registers kilocode provider once and refreshes cache from live raw respons
     globalThis.fetch = originalFetch;
     resetPiKilocodeModelCacheForTests();
     if (originalCache !== undefined) {
-      fs.mkdirSync(path.dirname(PI_KILOCODE_MODELS_CACHE_FILE), { recursive: true });
+      fs.mkdirSync(path.dirname(PI_KILOCODE_MODELS_CACHE_FILE), {
+        recursive: true,
+      });
       fs.writeFileSync(PI_KILOCODE_MODELS_CACHE_FILE, originalCache);
     } else {
       fs.rmSync(PI_KILOCODE_MODELS_CACHE_FILE, { force: true });
@@ -159,18 +175,23 @@ test("registers kilocode provider once and refreshes cache from live raw respons
   assert.equal(sessionStartHandlers.length, 1);
   await sessionStartHandlers[0]?.({}, {});
 
-  for (let i = 0; i < 20 && !fs.existsSync(PI_KILOCODE_MODELS_CACHE_FILE); i += 1) {
+  for (
+    let i = 0;
+    i < 20 && !fs.existsSync(PI_KILOCODE_MODELS_CACHE_FILE);
+    i += 1
+  ) {
     await new Promise((resolve) => setTimeout(resolve, 5));
   }
 
-  const cached = JSON.parse(fs.readFileSync(PI_KILOCODE_MODELS_CACHE_FILE, "utf8")) as {
+  const cached = JSON.parse(
+    fs.readFileSync(PI_KILOCODE_MODELS_CACHE_FILE, "utf8"),
+  ) as {
     data: { data: Array<{ id: string }> };
   };
-  assert.deepEqual(cached.data.data.map((model) => model.id), [
-    "demo/paid-model",
-    "demo/free-model:free",
-    "demo/image-only:free",
-  ]);
+  assert.deepEqual(
+    cached.data.data.map((model) => model.id),
+    ["demo/paid-model", "demo/free-model:free", "demo/image-only:free"],
+  );
 
   assert.deepEqual(
     getCachedPiModels().map((model) => model.id),

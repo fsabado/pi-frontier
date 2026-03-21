@@ -29,7 +29,7 @@ test("modifyModels adds organization header for kilocode models only", () => {
         contextWindow: 1,
         maxTokens: 1,
       },
-    ] as any,
+    ] satisfies Parameters<typeof modifyModels>[0],
     {
       refresh: "token",
       access: "token",

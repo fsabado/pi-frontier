@@ -1,4 +1,9 @@
-import type { Api, Model, OAuthCredentials, OAuthLoginCallbacks } from "@mariozechner/pi-ai";
+import type {
+  Api,
+  Model,
+  OAuthCredentials,
+  OAuthLoginCallbacks,
+} from "@mariozechner/pi-ai";
 import { KILO_API_BASE } from "../lib/env.js";
 
 const KILO_DEVICE_AUTH_CODES_URL = `${KILO_API_BASE}/api/device-auth/codes`;
@@ -49,7 +54,10 @@ function abortableSleep(ms: number, signal?: AbortSignal): Promise<void> {
   });
 }
 
-async function fetchJson<T>(input: string, init?: RequestInit): Promise<{ response: Response; data: T }> {
+async function fetchJson<T>(
+  input: string,
+  init?: RequestInit,
+): Promise<{ response: Response; data: T }> {
   const response = await fetch(input, init);
   const data = (await response.json().catch(() => undefined)) as T;
   return { response, data };
@@ -86,29 +94,40 @@ function toOAuthCredentials(input: {
     access: input.token,
     expires: Date.now() + KILO_TOKEN_TTL_MS,
     accountId: input.accountId,
-    email: input.profile ? getProfileEmail(input.profile, input.fallbackEmail) : input.fallbackEmail,
+    email: input.profile
+      ? getProfileEmail(input.profile, input.fallbackEmail)
+      : input.fallbackEmail,
     name: input.profile ? getProfileName(input.profile) : undefined,
   };
 }
 
 async function initiateDeviceAuth(): Promise<DeviceAuthInitiateResponse> {
-  const { response, data } = await fetchJson<DeviceAuthInitiateResponse>(KILO_DEVICE_AUTH_CODES_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-  });
+  const { response, data } = await fetchJson<DeviceAuthInitiateResponse>(
+    KILO_DEVICE_AUTH_CODES_URL,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    },
+  );
 
   if (!response.ok) {
     if (response.status === 429) {
-      throw new Error("Too many pending authorization requests. Please try again later.");
+      throw new Error(
+        "Too many pending authorization requests. Please try again later.",
+      );
     }
-    throw new Error(`Failed to initiate device authorization: ${response.status}`);
+    throw new Error(
+      `Failed to initiate device authorization: ${response.status}`,
+    );
   }
 
   return data;
 }
 
 async function pollDeviceAuth(code: string): Promise<DeviceAuthPollResponse> {
-  const { response, data } = await fetchJson<DeviceAuthPollResponse>(`${KILO_DEVICE_AUTH_CODES_URL}/${code}`);
+  const { response, data } = await fetchJson<DeviceAuthPollResponse>(
+    `${KILO_DEVICE_AUTH_CODES_URL}/${code}`,
+  );
 
   if (response.status === 202) return { status: "pending" };
   if (response.status === 403) return { status: "denied" };
@@ -121,9 +140,12 @@ async function pollDeviceAuth(code: string): Promise<DeviceAuthPollResponse> {
 }
 
 async function fetchProfile(token: string): Promise<KiloProfileResponse> {
-  const { response, data } = await fetchJson<KiloProfileResponse>(KILO_PROFILE_URL, {
-    headers: authHeaders(token),
-  });
+  const { response, data } = await fetchJson<KiloProfileResponse>(
+    KILO_PROFILE_URL,
+    {
+      headers: authHeaders(token),
+    },
+  );
 
   if (!response.ok) {
     if (response.status === 401 || response.status === 403) {
@@ -136,9 +158,10 @@ async function fetchProfile(token: string): Promise<KiloProfileResponse> {
 }
 
 function formatOrganizationPrompt(organizations: KiloOrganization[]) {
-  const options = ["0. Personal Account", ...organizations.map((org, index) => `${index + 1}. ${org.name}`)].join(
-    "\n",
-  );
+  const options = [
+    "0. Personal Account",
+    ...organizations.map((org, index) => `${index + 1}. ${org.name}`),
+  ].join("\n");
   return `${options}\nEnter a number:`;
 }
 
@@ -148,16 +171,19 @@ async function selectOrganization(
 ): Promise<string | undefined> {
   if (!organizations?.length) return undefined;
 
-  const response = (await callbacks.onPrompt({
-    message: `Select account:\n${formatOrganizationPrompt(organizations)}`,
-    placeholder: "0",
-    allowEmpty: true,
-  })).trim();
+  const response = (
+    await callbacks.onPrompt({
+      message: `Select account:\n${formatOrganizationPrompt(organizations)}`,
+      placeholder: "0",
+      allowEmpty: true,
+    })
+  ).trim();
 
   if (response === "" || response === "0") return undefined;
 
   const index = Number.parseInt(response, 10);
-  if (Number.isNaN(index) || index < 1 || index > organizations.length) return undefined;
+  if (Number.isNaN(index) || index < 1 || index > organizations.length)
+    return undefined;
 
   return organizations[index - 1]?.id;
 }
@@ -174,8 +200,10 @@ async function waitForAuthorization(
 
     const result = await pollDeviceAuth(code);
     if (result.status === "approved") return result;
-    if (result.status === "denied") throw new Error("Authorization denied by user");
-    if (result.status === "expired") throw new Error("Authorization code expired");
+    if (result.status === "denied")
+      throw new Error("Authorization denied by user");
+    if (result.status === "expired")
+      throw new Error("Authorization code expired");
 
     callbacks.onProgress?.("Waiting for browser authorization...");
     await abortableSleep(KILO_POLL_INTERVAL_MS, callbacks.signal);
@@ -184,7 +212,9 @@ async function waitForAuthorization(
   throw new Error("Authentication timed out. Please try again.");
 }
 
-export async function login(callbacks: OAuthLoginCallbacks): Promise<OAuthCredentials> {
+export async function login(
+  callbacks: OAuthLoginCallbacks,
+): Promise<OAuthCredentials> {
   const authData = await initiateDeviceAuth();
 
   callbacks.onAuth({
@@ -192,12 +222,18 @@ export async function login(callbacks: OAuthLoginCallbacks): Promise<OAuthCreden
     instructions: `Open ${authData.verificationUrl} and enter code: ${authData.code}`,
   });
 
-  const result = await waitForAuthorization(authData.code, authData.expiresIn, callbacks);
+  const result = await waitForAuthorization(
+    authData.code,
+    authData.expiresIn,
+    callbacks,
+  );
   if (!result.token) {
     throw new Error("Authentication failed: missing token");
   }
 
-  callbacks.onProgress?.(`Authenticated${result.userEmail ? ` as ${result.userEmail}` : ""}. Fetching profile...`);
+  callbacks.onProgress?.(
+    `Authenticated${result.userEmail ? ` as ${result.userEmail}` : ""}. Fetching profile...`,
+  );
   const profile = await fetchProfile(result.token);
   const accountId = await selectOrganization(profile.organizations, callbacks);
 
@@ -209,7 +245,9 @@ export async function login(callbacks: OAuthLoginCallbacks): Promise<OAuthCreden
   });
 }
 
-export async function refreshToken(credentials: OAuthCredentials): Promise<OAuthCredentials> {
+export async function refreshToken(
+  credentials: OAuthCredentials,
+): Promise<OAuthCredentials> {
   const token = String(credentials.access);
   await fetchProfile(token);
   return {
@@ -224,7 +262,10 @@ export function getApiKey(credentials: OAuthCredentials): string {
   return String(credentials.access);
 }
 
-export function modifyModels(models: Model<Api>[], credentials: OAuthCredentials): Model<Api>[] {
+export function modifyModels(
+  models: Model<Api>[],
+  credentials: OAuthCredentials,
+): Model<Api>[] {
   const organizationId = getOrganizationId(credentials);
   if (!organizationId) return models;
 
