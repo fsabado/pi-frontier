@@ -1,0 +1,45 @@
+{
+  "name": "pi-kilocode",
+  "version": "0.1.0",
+  "description": "Kilo Code provider extension for pi",
+  "type": "module",
+  "license": "MIT",
+  "author": "sudosubin",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sudosubin/pi-frontier.git",
+    "directory": "pi-kilocode"
+  },
+  "keywords": [
+    "pi",
+    "pi-coding-agent",
+    "pi-package",
+    "kilocode"
+  ],
+  "pi": {
+    "extensions": [
+      "./src/index.ts"
+    ]
+  },
+  "files": [
+    "src/**/*.ts",
+    "README.md"
+  ],
+  "scripts": {
+    "lint": "biome check",
+    "format": "biome check --write",
+    "typecheck": "tsc",
+    "test": "TMP_DIR=$(mktemp -d) && PI_CODING_AGENT_DIR=\"$TMP_DIR\" tsx --test $(find test -name '*.test.ts' -o -name '*.test.mts' -o -name '*.test.js' | sort); STATUS=$?; rm -rf \"$TMP_DIR\"; exit $STATUS"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.2",
+    "@tsconfig/strictest": "^2.0.8",
+    "@types/node": "^24.10.10",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  },
+  "peerDependencies": {
+    "@mariozechner/pi-ai": ">=0.49.0",
+    "@mariozechner/pi-coding-agent": ">=0.49.0"
+  }
+}
