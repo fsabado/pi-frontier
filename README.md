@@ -6,6 +6,7 @@
 
 - [`pi-cline`](./pi-cline/README.md): Cline provider extension for pi
 - [`pi-cursor-agent`](./pi-cursor-agent/README.md): Cursor Agent provider extension for pi
+- [`pi-kilocode`](./pi-kilocode/README.md): Kilo Code provider extension for pi
 
 ## License
 
