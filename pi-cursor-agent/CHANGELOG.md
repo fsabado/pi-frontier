@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.2 (2026-03-24)
+
+### Features
+
+* Update models ([c1f4111](https://github.com/sudosubin/pi-frontier/commit/c1f4111c2e0d4cccc7023c4830801d194ce17f90))
+
 ## 0.4.1 (2026-03-20)
 
 ### Features
