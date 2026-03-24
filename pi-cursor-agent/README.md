@@ -15,27 +15,37 @@ The following models are available through the Cursor Agent provider. Canonical 
 
 | Canonical Model ID | Cursor Model ID | Name |
 | --- | --- | --- |
+| `claude-sonnet-4-0` | `claude-4-sonnet`, `claude-4-sonnet-thinking` | Claude 4 Sonnet (Cursor) |
+| `claude-sonnet-4-1m` | `claude-4-sonnet-1m`, `claude-4-sonnet-1m-thinking` | Claude 4 Sonnet 1M (Cursor) |
 | `claude-sonnet-4-5` | `claude-4.5-sonnet`, `claude-4.5-sonnet-thinking` | Claude 4.5 Sonnet (Cursor) |
 | `claude-sonnet-4-6` | `claude-4.6-sonnet-medium`, `claude-4.6-sonnet-medium-thinking` | Claude 4.6 Sonnet (Cursor) |
 | `claude-opus-4-5` | `claude-4.5-opus-high`, `claude-4.5-opus-high-thinking` | Claude 4.5 Opus (Cursor) |
 | `claude-opus-4-6` | `claude-4.6-opus-high`, `claude-4.6-opus-high-thinking` | Claude 4.6 Opus (Cursor) |
+| `claude-opus-4-6-max` | `claude-4.6-opus-max`, `claude-4.6-opus-max-thinking` | Claude 4.6 Opus Max (Cursor) |
+| `gpt-5-mini` | `gpt-5-mini` | GPT-5 Mini (Cursor) |
 | `gpt-5.1` | `gpt-5.1`, `gpt-5.1-low`, `gpt-5.1-high` | GPT-5.1 (Cursor) |
-| `gpt-5.1-codex-max` | `gpt-5.1-codex-max`, `gpt-5.1-codex-max-high` | GPT-5.1 Codex Max (Cursor) |
-| `gpt-5.1-codex-mini` | `gpt-5.1-codex-mini` | GPT-5.1 Codex Mini (Cursor) |
-| `gpt-5.2` | `gpt-5.2`, `gpt-5.2-high` | GPT-5.2 (Cursor) |
+| `gpt-5.1-codex-mini` | `gpt-5.1-codex-mini`, `gpt-5.1-codex-mini-low`, `gpt-5.1-codex-mini-high` | GPT-5.1 Codex Mini (Cursor) |
+| `gpt-5.1-codex-max` | `gpt-5.1-codex-max-medium`, `gpt-5.1-codex-max-low`, `gpt-5.1-codex-max-high`, `gpt-5.1-codex-max-xhigh` | GPT-5.1 Codex Max (Cursor) |
+| `gpt-5.1-codex-max-fast` | `gpt-5.1-codex-max-medium-fast`, `gpt-5.1-codex-max-low-fast`, `gpt-5.1-codex-max-high-fast`, `gpt-5.1-codex-max-xhigh-fast` | GPT-5.1 Codex Max Fast (Cursor) |
+| `gpt-5.2` | `gpt-5.2`, `gpt-5.2-low`, `gpt-5.2-high`, `gpt-5.2-xhigh` | GPT-5.2 (Cursor) |
+| `gpt-5.2-fast` | `gpt-5.2-fast`, `gpt-5.2-low-fast`, `gpt-5.2-high-fast`, `gpt-5.2-xhigh-fast` | GPT-5.2 Fast (Cursor) |
 | `gpt-5.2-codex` | `gpt-5.2-codex`, `gpt-5.2-codex-low`, `gpt-5.2-codex-high`, `gpt-5.2-codex-xhigh` | GPT-5.2 Codex (Cursor) |
 | `gpt-5.2-codex-fast` | `gpt-5.2-codex-fast`, `gpt-5.2-codex-low-fast`, `gpt-5.2-codex-high-fast`, `gpt-5.2-codex-xhigh-fast` | GPT-5.2 Codex Fast (Cursor) |
 | `gpt-5.3-codex` | `gpt-5.3-codex`, `gpt-5.3-codex-low`, `gpt-5.3-codex-high`, `gpt-5.3-codex-xhigh` | GPT-5.3 Codex (Cursor) |
 | `gpt-5.3-codex-fast` | `gpt-5.3-codex-fast`, `gpt-5.3-codex-low-fast`, `gpt-5.3-codex-high-fast`, `gpt-5.3-codex-xhigh-fast` | GPT-5.3 Codex Fast (Cursor) |
-| `gpt-5.3-codex-spark` | `gpt-5.3-codex-spark-preview` | GPT-5.3 Codex Spark (Cursor) |
+| `gpt-5.3-codex-spark` | `gpt-5.3-codex-spark-preview`, `gpt-5.3-codex-spark-preview-low`, `gpt-5.3-codex-spark-preview-high`, `gpt-5.3-codex-spark-preview-xhigh` | GPT-5.3 Codex Spark (Cursor) |
 | `gpt-5.4` | `gpt-5.4-medium`, `gpt-5.4-low`, `gpt-5.4-high`, `gpt-5.4-xhigh` | GPT-5.4 (Cursor) |
 | `gpt-5.4-fast` | `gpt-5.4-medium-fast`, `gpt-5.4-high-fast`, `gpt-5.4-xhigh-fast` | GPT-5.4 Fast (Cursor) |
+| `gpt-5.4-mini` | `gpt-5.4-mini-medium`, `gpt-5.4-mini-none`, `gpt-5.4-mini-low`, `gpt-5.4-mini-high`, `gpt-5.4-mini-xhigh` | GPT-5.4 Mini (Cursor) |
+| `gpt-5.4-nano` | `gpt-5.4-nano-medium`, `gpt-5.4-nano-none`, `gpt-5.4-nano-low`, `gpt-5.4-nano-high`, `gpt-5.4-nano-xhigh` | GPT-5.4 Nano (Cursor) |
 | `gemini-3-pro-preview` | `gemini-3-pro` | Gemini 3 Pro (Cursor) |
 | `gemini-3-flash-preview` | `gemini-3-flash` | Gemini 3 Flash (Cursor) |
 | `gemini-3.1-pro-preview` | `gemini-3.1-pro` | Gemini 3.1 Pro (Cursor) |
-| `grok-code-fast-1` | `grok-code-fast-1` | Grok Code (Cursor) |
-| `composer-1` | `composer-1` | Composer 1 (Cursor) |
+| `grok-4.20-0309-non-reasoning` | `grok-4-20` | Grok 4.20 (Non-Reasoning) (Cursor) |
+| `grok-4.20-0309-reasoning` | `grok-4-20-thinking` | Grok 4.20 (Reasoning) (Cursor) |
 | `composer-1.5` | `composer-1.5` | Composer 1.5 (Cursor) |
+| `composer-2` | `composer-2` | Composer 2 (Cursor) |
+| `composer-2-fast` | `composer-2-fast` | Composer 2 Fast (Cursor) |
 | `kimi-k2.5` | `kimi-k2.5` | Kimi K2.5 (Cursor) |
 
 ## Installation
