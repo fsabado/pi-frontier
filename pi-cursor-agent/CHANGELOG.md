@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.3 (2026-03-29)
+
+### Features
+
+* Implement MCP tool executor to bridge pi tools ([#9](https://github.com/sudosubin/pi-frontier/issues/9)) ([b0b74bc](https://github.com/sudosubin/pi-frontier/commit/b0b74bcbe0c3f6611678b614f82dc8976b6ca0d9))
+
 ## 0.4.2 (2026-03-24)
 
 ### Features
