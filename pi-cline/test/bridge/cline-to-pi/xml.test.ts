@@ -75,5 +75,5 @@ test("text blocks containing cline SYSTEM_CONTENT_MARKERS are dropped from pream
 
   assert.equal(parsed.preambleText, "");
   assert.equal(parsed.toolCalls.length, 1);
-  assert.equal(parsed.toolCalls[0].name, "list_files");
+  assert.equal(parsed.toolCalls[0]?.name, "list_files");
 });
