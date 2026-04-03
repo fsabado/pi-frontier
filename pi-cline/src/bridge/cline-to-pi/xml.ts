@@ -1,3 +1,5 @@
+import { containsSystemMarker } from "../shared/cline-markers";
+
 export interface ParsedAssistantResponse {
   rawText: string;
   thinking: string[];
@@ -307,6 +309,7 @@ export function parseAssistantXmlResponse(
 
   const preambleText = blocks
     .filter((block): block is TextBlock => block.type === "text")
+    .filter((block) => !containsSystemMarker(block.content))
     .map((block) => sanitizeTextContent(block.content))
     .filter(Boolean)
     .join("\n\n")

@@ -60,3 +60,20 @@ test("parseAssistantMessageV2-style parsing preserves multiple known tool blocks
     ["list_code_definition_names", "replace_in_file"],
   );
 });
+
+test("text blocks containing cline SYSTEM_CONTENT_MARKERS are dropped from preamble", () => {
+  const parsed = parseAssistantXmlResponse(
+    [
+      "[Response interrupted by a tool use result. Only one tool may be used at a time and should be placed at the end of the message.]",
+      "",
+      "<list_files>",
+      "<path>/tmp</path>",
+      "<recursive>false</recursive>",
+      "</list_files>",
+    ].join("\n"),
+  );
+
+  assert.equal(parsed.preambleText, "");
+  assert.equal(parsed.toolCalls.length, 1);
+  assert.equal(parsed.toolCalls[0].name, "list_files");
+});
