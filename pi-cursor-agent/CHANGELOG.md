@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.4 (2026-04-04)
+
+### Features
+
+* Inject pi context as cursor rules ([#12](https://github.com/sudosubin/pi-frontier/issues/12)) ([0f57f8a](https://github.com/sudosubin/pi-frontier/commit/0f57f8a6772e00fb76336f1352a3ff823ae6e070))
+
 ## 0.4.3 (2026-03-29)
 
 ### Features
