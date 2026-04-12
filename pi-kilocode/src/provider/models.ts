@@ -134,7 +134,7 @@ function toPiModel(m: KiloModel): ProviderModelConfig {
     contextWindow: m.context_length,
     maxTokens: maxOut ?? 8192,
     compat: {
-      supportsDeveloperRole: false,
+      // supportsDeveloperRole should be automatically inferred as true.
       supportsStore: false,
       thinkingFormat: supportsReasoning ? "openrouter" : undefined,
     },
