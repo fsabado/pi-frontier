@@ -1,6 +1,6 @@
 {
   "name": "pi-kilocode",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Kilo Code provider extension for pi",
   "type": "module",
   "license": "MIT",
