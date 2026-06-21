@@ -1,6 +1,6 @@
 {
   "name": "pi-frontier",
-  "description": "Pi provider extensions: cursor-agent",
+  "description": "Pi provider extensions: cursor-agent, cline, kilocode",
   "keywords": ["pi-package"],
   "dependencies": {
     "@bufbuild/protobuf": "1.10.0",
@@ -10,7 +10,9 @@
   },
   "pi": {
     "extensions": [
-      "./pi-cursor-agent/src/index.ts"
+      "./pi-cursor-agent/src/index.ts",
+      "./pi-cline/src/index.ts",
+      "./pi-kilocode/src/index.ts"
     ]
   }
 }
