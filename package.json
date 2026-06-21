@@ -1,12 +1,16 @@
 {
   "name": "pi-frontier",
-  "description": "Pi provider extensions: cursor-agent, cline, kilocode",
+  "description": "Pi provider extensions: cursor-agent",
   "keywords": ["pi-package"],
+  "dependencies": {
+    "@bufbuild/protobuf": "1.10.0",
+    "@connectrpc/connect": "^1.7.0",
+    "@connectrpc/connect-node": "^1.7.0",
+    "yaml": "^2.8.0"
+  },
   "pi": {
     "extensions": [
-      "./pi-cursor-agent/src/index.ts",
-      "./pi-cline/src/index.ts",
-      "./pi-kilocode/src/index.ts"
+      "./pi-cursor-agent/src/index.ts"
     ]
   }
 }
